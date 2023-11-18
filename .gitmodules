@@ -1,0 +1,3 @@
+[submodule "gkr-basics"]
+	path = gkr-basics
+	url = https://github.com/ElemagEx/gkr-basics.git

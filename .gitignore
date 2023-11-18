@@ -1,3 +1,7 @@
+# Folders
+.vs/
+build/
+
 # Prerequisites
 *.d
 
