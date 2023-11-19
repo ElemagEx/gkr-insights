@@ -1,7 +1,10 @@
+#include <gkr/stamp.h>
+
 #include <cstdio>
 
 int main()
 {
-    puts("Hello World!");
+    gkr::stamp_now();
+
     return 0;
 }
