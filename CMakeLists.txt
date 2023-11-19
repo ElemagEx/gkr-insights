@@ -7,5 +7,7 @@ add_subdirectory(gkr-basics)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
 
+add_subdirectory(libs)
+
 add_executable(gkr_main main.cpp)
 target_link_libraries(gkr_main gkr_core)

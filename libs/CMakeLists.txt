@@ -1,1 +1,1 @@
-add_subdirectory(mediator)
+add_subdirectory(gkr-mediator)
