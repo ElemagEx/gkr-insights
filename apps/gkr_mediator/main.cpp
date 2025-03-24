@@ -1,4 +1,6 @@
-#include "lws_context.hpp"
+#include <gkr/defs.hpp>
+
+#include <gkr/comm/lws_context.hpp>
 
 #include "lws_server.hpp"
 
@@ -22,7 +24,7 @@ static gkr::log::logging s_logging("logger", 32U, 1023U, g_severities_infos);
 
 int main(int argc, int argv)
 {
-    gkr_log_add_consumer(nullptr, std::make_shared<gkr::log::app_console_consumer>(gkr_log_appConsoleWriteMethod_printf));
+    gkr_log_add_consumer(nullptr, std::make_shared<gkr::log::app_console_consumer>(gkr_log_appConsoleWriteMethod_puts));
 
     LOGI("Server start");
 

@@ -1,7 +1,3 @@
-cmake_minimum_required(VERSION 3.22)
-
-project(gkr-insights)
-
 #
 # libwebsockets
 #
@@ -11,16 +7,26 @@ set(requirements 1)
 require_lws_config(LWS_ROLE_WS 1 requirements)
 require_lws_config(LWS_WITH_SERVER 1 requirements)
 
-#
-# gkr-basics
-#
-set(GKR_BASICS_TESTS OFF)
-add_subdirectory(gkr-basics)
+add_library(gkr_comm)
 
-#
-# self
-#
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
+target_include_directories(gkr_comm PUBLIC ".")
 
-#add_subdirectory(libs)
-add_subdirectory(apps)
+target_sources(
+    gkr_comm
+    INTERFACE
+    "gkr/comm/api.hpp"
+    "gkr/comm/lws_context.hpp"
+    "gkr/comm/lws_protocol.hpp"
+)
+target_sources(
+    gkr_comm
+    PRIVATE
+    "gkr/comm/lws_context.cpp"
+    "gkr/comm/lws_protocol.cpp"
+)
+
+target_link_libraries(gkr_comm PUBLIC gkr_inline gkr_core gkr_log)
+
+target_link_libraries(gkr_comm PRIVATE websockets_shared)
+
+set_target_properties(gkr_comm PROPERTIES DEFINE_SYMBOL BUILDING_GKR_COMM_X)

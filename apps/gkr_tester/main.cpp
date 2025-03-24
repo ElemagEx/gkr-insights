@@ -1,10 +1,7 @@
 #include <gkr/stamp.hpp>
 
-#include <thread>
+//#include <thread>
 #include <iostream>
-
-extern "C" int do_main(int argc, const char **argv);
-extern "C" void end_main();
 
 #include <gkr/log/logging.hpp>
 #include <gkr/log/defs/generic_cdefs.hpp>
@@ -23,24 +20,10 @@ static gkr::log::logging s_logging("logger", 32U, 1023U, g_severities_infos);
 
 int main(int argc, const char **argv)
 {
-    gkr_log_add_consumer(nullptr, std::make_shared<gkr::log::app_console_consumer>(gkr_log_appConsoleWriteMethod_printf));
-
-    int res = 0;
-
-    std::thread thread([argc, argv, &res]()
-    {
-        LOGI("WebSocket server starting");
-
-        res = do_main(argc, argv);
-
-        LOGI("WebSocket server finished");
-    });
+    gkr_log_add_consumer(nullptr, std::make_shared<gkr::log::app_console_consumer>(gkr_log_appConsoleWriteMethod_puts));
 
     std::string str;
     std::getline(std::cin, str);
 
-    end_main();
-    thread.join();
-
-    return res;
+    return 0;
 }
