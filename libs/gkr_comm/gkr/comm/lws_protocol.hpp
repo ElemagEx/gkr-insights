@@ -1,5 +1,7 @@
 #pragma once
 
+#include <gkr/comm/api.hpp>
+
 #include <utility>
 
 struct lws;
@@ -16,8 +18,8 @@ class Protocol
     Protocol& operator=(const Protocol&) noexcept = delete;
 
 public:
-    Protocol();
-    virtual ~Protocol();
+    GKR_COMM_API Protocol();
+    GKR_COMM_API virtual ~Protocol();
 
     Protocol(Protocol&&) noexcept
     {

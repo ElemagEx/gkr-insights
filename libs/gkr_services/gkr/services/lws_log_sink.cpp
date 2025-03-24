@@ -1,10 +1,10 @@
 #include <gkr/defs.hpp>
 
-#include "lws_log_sink.hpp"
+#include <gkr/services/lws_log_sink.hpp>
 
 namespace gkr
 {
-namespace mediator
+namespace services
 {
 namespace lws
 {

@@ -4,7 +4,7 @@
 
 namespace gkr
 {
-namespace mediator
+namespace services
 {
 namespace lws
 {

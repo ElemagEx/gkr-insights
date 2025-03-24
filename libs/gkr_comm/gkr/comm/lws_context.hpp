@@ -1,5 +1,7 @@
 #pragma once
 
+#include <gkr/comm/api.hpp>
+
 #include <utility>
 #include <thread>
 
@@ -24,15 +26,16 @@ class Context
     bool                  m_running   = false;
 
 protected:
-    Context() noexcept = default;
+    GKR_COMM_API Context() noexcept;
 
 public:
-    virtual ~Context() noexcept;
+    GKR_COMM_API virtual ~Context() noexcept;
 
     Context(Context&& other) noexcept
         : m_context  (std::exchange(other.m_context  , nullptr))
         , m_protocols(std::exchange(other.m_protocols, nullptr))
         , m_thread   (std::move    (other.m_thread   ))
+        , m_running  (std::exchange(other.m_running , false))
     {
     }
     Context& operator=(Context&& other) noexcept
@@ -40,6 +43,7 @@ public:
         m_context   = std::exchange(other.m_context  , nullptr);
         m_protocols = std::exchange(other.m_protocols, nullptr);
         m_thread    = std::move    (other.m_thread   );
+        m_running   = std::exchange(other.m_running  , false);
         return *this;
     }
 
@@ -59,9 +63,9 @@ private:
     void thread_done();
 
 public:
-    bool run();
+    GKR_COMM_API bool run();
 
-    bool stop();
+    GKR_COMM_API bool stop();
 
 protected:
     virtual void get_context_info(unsigned& protocols, unsigned long long& options) = 0;

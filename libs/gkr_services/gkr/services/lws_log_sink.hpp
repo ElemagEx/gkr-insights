@@ -1,10 +1,10 @@
 #pragma once
 
-#include "lws_protocol.hpp"
+#include <gkr/comm/lws_protocol.hpp>
 
 namespace gkr
 {
-namespace mediator
+namespace services
 {
 namespace lws
 {

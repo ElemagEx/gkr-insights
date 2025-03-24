@@ -25,7 +25,7 @@
 #    "gkr/comm/lws_protocol.cpp"
 #)
 
-#target_link_libraries(gkr_comm PUBLIC gkr_inline gkr_core gkr_log)
+#target_link_libraries(gkr_comm PRIVATE gkr_inline gkr_core gkr_log)
 #
 #target_link_libraries(gkr_comm PRIVATE websockets_shared)
 #

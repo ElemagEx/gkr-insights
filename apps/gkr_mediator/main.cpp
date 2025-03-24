@@ -1,8 +1,6 @@
 #include <gkr/defs.hpp>
 
-#include <gkr/comm/lws_context.hpp>
-
-#include "lws_server.hpp"
+#include <gkr/services/server.hpp>
 
 #include <gkr/log/logging.hpp>
 #include <gkr/log/defs/generic_cdefs.hpp>
@@ -28,7 +26,9 @@ int main(int argc, int argv)
 
     LOGI("Server start");
 
-    gkr::mediator::lws::Server server;
+    gkr::services::Server server;
+
+    server.add_service_provider_lws();
 
     if(!server.run())
     {
@@ -43,7 +43,6 @@ int main(int argc, int argv)
             server.stop();
             break;
         }
-
     }
     LOGI("Server finish");
 }

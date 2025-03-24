@@ -1,6 +1,6 @@
 #include <gkr/defs.hpp>
 
-#include "lws_protocol.hpp"
+#include <gkr/comm/lws_protocol.hpp>
 
 #include <gkr/diagnostics.hpp>
 #include <gkr/log/defs/generic_cdefs.hpp>

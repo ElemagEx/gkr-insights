@@ -1,7 +1,7 @@
 #include <gkr/defs.hpp>
 
-#include "lws_server.hpp"
-#include "lws_log_sink.hpp"
+#include <gkr/services/lws_server.hpp>
+#include <gkr/services/lws_log_sink.hpp>
 
 #include <gkr/diagnostics.hpp>
 
@@ -9,7 +9,7 @@
 
 namespace gkr
 {
-namespace mediator
+namespace services
 {
 namespace lws
 {
@@ -60,7 +60,7 @@ Protocol* Server::create_protocol(unsigned index)
 {
     switch(index)
     {
-        case 1: return new gkr::mediator::lws::LogSink();
+        case 1: return new LogSink();
     }
     Check_Failure(nullptr);
 }
