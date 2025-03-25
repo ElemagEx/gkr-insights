@@ -9,8 +9,15 @@
 
 namespace gkr
 {
+namespace providers
+{
 namespace lws
 {
+
+client* client::create()
+{
+    return new client();
+}
 
 client::client() noexcept
 {
@@ -18,6 +25,11 @@ client::client() noexcept
 
 client::~client() noexcept
 {
+}
+
+void client::release()
+{
+    delete this;
 }
 
 void client::get_context_info(unsigned& protocols, unsigned long long& options)
@@ -42,5 +54,6 @@ protocol* client::create_protocol(unsigned index)
     Check_Failure(nullptr);
 }
 
+}
 }
 }

@@ -2,6 +2,8 @@
 
 #include <gkr/comm/api.hpp>
 
+#include <gkr/url.hpp>
+
 #include <utility>
 
 struct lws;
@@ -9,6 +11,8 @@ struct lws_context;
 enum lws_callback_reasons;
 
 namespace gkr
+{
+namespace providers
 {
 namespace lws
 {
@@ -31,7 +35,7 @@ private:
         m_context = context;
     }
 protected:
-    struct lws_context* get_parent_context(struct lws_context* context) const
+    struct lws_context* get_parent_context()
     {
         return m_context;
     }
@@ -39,7 +43,9 @@ protected:
 protected:
     virtual void* get_callback() = 0;
 
-    virtual const char* get_info(unsigned& id, std::size_t& ps_size, std::size_t& rx_size, std::size_t& tx_size) = 0;
+    virtual const char* get_name() = 0;
+
+    virtual unsigned get_info(std::size_t& ps_size, std::size_t& rx_size, std::size_t& tx_size) = 0;
 
     virtual void on_other_reason(int reason, const void* data, std::size_t size) = 0;
 };
@@ -53,7 +59,9 @@ public:
 protected:
     virtual void* get_callback() override;
 
-    virtual const char* get_info(unsigned& id, std::size_t& ps_size, std::size_t& rx_size, std::size_t& tx_size) override;
+    virtual const char* get_name() override;
+
+    virtual unsigned get_info(std::size_t& ps_size, std::size_t& rx_size, std::size_t& tx_size) override;
 
     virtual void on_other_reason(int reason, const void* data, std::size_t size) override;
 
@@ -70,7 +78,9 @@ public:
 protected:
     GKR_COMM_API virtual void* get_callback() override;
 
-    virtual const char* get_info(unsigned& id, std::size_t& ps_size, std::size_t& rx_size, std::size_t& tx_size) = 0;
+    virtual const char* get_name() = 0;
+
+    virtual unsigned get_info(std::size_t& ps_size, std::size_t& rx_size, std::size_t& tx_size) = 0;
 
     virtual void on_other_reason(int reason, const void* data, std::size_t size) = 0;
 
@@ -92,17 +102,21 @@ protected:
 
 class client_protocol : public protocol
 {
+    url m_connect_url;
+
 public:
     GKR_COMM_API client_protocol();
     GKR_COMM_API virtual ~client_protocol() override;
 
 public:
-    bool connect(const char* url, const char* protocols);
+    bool connect(const char* url, const char* protocol);
 
 protected:
     GKR_COMM_API virtual void* get_callback() override;
 
-    virtual const char* get_info(unsigned& id, std::size_t& ps_size, std::size_t& rx_size, std::size_t& tx_size) = 0;
+    virtual const char* get_name() = 0;
+
+    virtual unsigned get_info(std::size_t& ps_size, std::size_t& rx_size, std::size_t& tx_size) = 0;
 
     virtual void on_other_reason(int reason, const void* data, std::size_t size) = 0;
 
@@ -124,5 +138,6 @@ protected:
     virtual void on_connection_received_data(const void* data, std::size_t size) = 0;
 };
 
+}
 }
 }

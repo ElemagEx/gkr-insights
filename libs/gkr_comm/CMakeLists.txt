@@ -13,13 +13,16 @@ target_sources(
 )
 target_sources(
     gkr_comm
-    PRIVATE
+    PUBLIC
+    "gkr/comm/storage.hpp"
+    "gkr/comm/provider.hpp"
     "gkr/comm/lws_context.hpp"
     "gkr/comm/lws_protocol.hpp"
 )
 target_sources(
     gkr_comm
     PRIVATE
+    "gkr/comm/storage.cpp"
     "gkr/comm/lws_context.cpp"
     "gkr/comm/lws_protocol.cpp"
 )

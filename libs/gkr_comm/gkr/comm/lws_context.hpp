@@ -2,6 +2,8 @@
 
 #include <gkr/comm/api.hpp>
 
+#include <gkr/comm/provider.hpp>
+
 #include <utility>
 #include <thread>
 
@@ -12,11 +14,13 @@ struct lws_protocols;
 
 namespace gkr
 {
+namespace providers
+{
 namespace lws
 {
 
 class protocol;
-class context
+class context : public provider
 {
     struct lws_context*   m_context   = nullptr;
     struct lws_protocols* m_protocols = nullptr;
@@ -44,10 +48,15 @@ private:
     void thread_loop();
     void thread_done();
 
-public:
-    GKR_COMM_API bool run();
+protected:
+    virtual void release() = 0;
 
-    GKR_COMM_API bool stop();
+public:
+    GKR_COMM_API virtual const char* get_name() override;
+
+protected:
+    GKR_COMM_API virtual bool start() override;
+    GKR_COMM_API virtual void stop () override;
 
 protected:
     virtual void get_context_info(unsigned& protocols, unsigned long long& options) = 0;
@@ -57,5 +66,6 @@ protected:
     virtual protocol* create_protocol(unsigned index) = 0;
 };
 
+}
 }
 }

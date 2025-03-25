@@ -9,8 +9,15 @@
 
 namespace gkr
 {
+namespace providers
+{
 namespace lws
 {
+
+server* server::create()
+{
+    return new server;
+}
 
 server::server() noexcept
 {
@@ -18,6 +25,11 @@ server::server() noexcept
 
 server::~server() noexcept
 {
+}
+
+void server::release()
+{
+    delete this;
 }
 
 void server::get_context_info(unsigned& protocols, unsigned long long& options)
@@ -63,5 +75,6 @@ protocol* server::create_protocol(unsigned index)
     Check_Failure(nullptr);
 }
 
+}
 }
 }

@@ -1,6 +1,8 @@
 #include <gkr/defs.hpp>
 
-#include <gkr/services/server.hpp>
+#include <gkr/net/lib.hpp>
+#include <gkr/comm/storage.hpp>
+#include <gkr/services/server_factory.hpp>
 
 #include <gkr/log/logging.hpp>
 #include <gkr/log/defs/generic_cdefs.hpp>
@@ -9,16 +11,12 @@
 #include <string>
 #include <iostream>
 
-constexpr gkr_log_name_id_pair g_severities_infos[] = {
-    {"Fatal"  , LOG_SEVERITY_FATAL  },
-    {"Error"  , LOG_SEVERITY_ERROR  },
-    {"Warning", LOG_SEVERITY_WARNING},
-    {"Info"   , LOG_SEVERITY_INFO   },
-    {"Verbose", LOG_SEVERITY_VERBOSE},
-    {nullptr  , 0                   }
-};
+constexpr gkr_log_name_id_pair g_severities_infos[] = LOG_SEVERITIES_INFOS;
 
 static gkr::log::logging s_logging("logger", 32U, 1023U, g_severities_infos);
+static gkr::net::lib;
+
+static gkr::providers::storage services_providers(false);
 
 int main(int argc, int argv)
 {
@@ -26,11 +24,9 @@ int main(int argc, int argv)
 
     LOGI("Server start");
 
-    gkr::services::Server server;
+    services_providers.add_provider(gkr::providers::create_server_provider());
 
-    server.add_service_provider_lws();
-
-    if(!server.run())
+    if(!services_providers.start())
     {
         LOGF("Server initialization failed");
     }
@@ -40,7 +36,7 @@ int main(int argc, int argv)
 
         if(line.empty())
         {
-            server.stop();
+            services_providers.stop();
             break;
         }
     }

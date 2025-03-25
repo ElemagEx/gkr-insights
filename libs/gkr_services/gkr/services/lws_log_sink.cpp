@@ -4,6 +4,8 @@
 
 namespace gkr
 {
+namespace providers
+{
 namespace lws
 {
 
@@ -15,15 +17,17 @@ log_sink::~log_sink()
 {
 }
 
-const char* log_sink::get_info(unsigned& id, std::size_t& ps_size, std::size_t& rx_size, std::size_t& tx_size)
+const char* log_sink::get_name()
 {
-    id = 0;
+    return "gkr-log-sink";
+}
 
+unsigned log_sink::get_info(std::size_t& ps_size, std::size_t& rx_size, std::size_t& tx_size)
+{
     ps_size = 32;
     rx_size = 2048;
     tx_size = 0;
-
-    return "gkr-log-sink";
+    return 0;
 }
 
 void log_sink::on_other_reason(int reason, const void* data, std::size_t size)
@@ -58,5 +62,6 @@ void log_sink::on_connection_received_data(const void* data, std::size_t size)
 {
 }
 
+}
 }
 }

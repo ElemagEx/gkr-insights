@@ -13,12 +13,15 @@
 
 namespace gkr
 {
+namespace providers
+{
 namespace lws
 {
 
 context::context() noexcept
 {
 }
+
 context::~context() noexcept
 {
 }
@@ -33,11 +36,11 @@ int context::thread_init()
 
     get_server_info(info.port, info.mounts);
 
-    m_protocols = static_cast<struct lws_protocols*>(std::malloc(sizeof(struct lws_protocols) * (protocols + 1)));
+    m_protocols = static_cast<struct lws_protocols*>(std::malloc(sizeof(struct lws_protocols) * std::size_t(protocols + 1)));
 
     Check_NotNullPtr(m_protocols, -1);
 
-    std::memset(m_protocols, 0, sizeof(struct lws_protocols) * (protocols + 1));
+    std::memset(m_protocols, 0, sizeof(struct lws_protocols) * std::size_t(protocols + 1));
 
     for(unsigned index = 0; index < protocols; ++index)
     {
@@ -48,8 +51,8 @@ int context::thread_init()
         Check_NotNullPtr(proto.user, -1);
 
         proto.callback = static_cast<lws_callback_function *>(static_cast<protocol*>(proto.user)->get_callback());
-        proto.name     = static_cast<protocol*>(proto.user)->get_info(
-            proto.id,
+        proto.name     = static_cast<protocol*>(proto.user)->get_name();
+        proto.id       = static_cast<protocol*>(proto.user)->get_info(
             proto.per_session_data_size,
             proto.rx_buffer_size,
             proto.tx_packet_size);
@@ -103,7 +106,12 @@ void context::thread_done()
     }
 }
 
-bool context::run()
+const char* context::get_name()
+{
+    return "libwebsocket";
+}
+
+bool context::start()
 {
     Check_ValidState(!m_thread.joinable(), false);
 
@@ -129,18 +137,17 @@ bool context::run()
     }
 }
 
-bool context::stop()
+void context::stop()
 {
-    Check_ValidState(m_thread.joinable(), false);
+    Check_ValidState(m_thread.joinable(), );
 
     m_running = false;
 
     lws_cancel_service(m_context);
 
     m_thread.join();
-
-    return true;
 }
 
+}
 }
 }

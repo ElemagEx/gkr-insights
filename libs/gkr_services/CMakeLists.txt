@@ -4,7 +4,7 @@ set_target_properties(gkr_services PROPERTIES DEFINE_SYMBOL BUILDING_GKR_SERVICE
 target_include_directories(gkr_services PUBLIC ".")
 
 target_link_libraries(gkr_services PRIVATE gkr_inline gkr_core gkr_log)
-target_link_libraries(gkr_services PRIVATE gkr_comm)
+target_link_libraries(gkr_services PUBLIC  gkr_comm)
 
 target_link_libraries(gkr_services PRIVATE websockets_shared)#???
 
@@ -12,12 +12,12 @@ target_sources(
     gkr_services
     INTERFACE
     "gkr/services/api.hpp"
-    "gkr/services/server.hpp"
+    "gkr/services/server_factory.hpp"
 )
 target_sources(
     gkr_services
     PRIVATE
-    "gkr/services/server.cpp"
+    "gkr/services/server_factory.cpp"
 )
 target_sources(
     gkr_services

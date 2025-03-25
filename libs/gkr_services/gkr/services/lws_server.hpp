@@ -4,26 +4,22 @@
 
 namespace gkr
 {
+namespace providers
+{
 namespace lws
 {
 
 class server : public context
 {
-//  server(const server&) noexcept = delete;
-//  server& operator=(const server&) noexcept = delete;
-
 public:
+    static server* create();
+
+protected:
     server() noexcept;
     virtual ~server() noexcept override;
 
-//  server(server&& other) noexcept : context(std::move(other))
-//  {
-//  }
-//  server& operator=(server&& other) noexcept
-//  {
-//      server::operator=(std::move(other));
-//      return *this;
-//  }
+protected:
+    virtual void release() override;
 
 protected:
     virtual void get_context_info(unsigned& protocols, unsigned long long& options) override;
@@ -33,5 +29,6 @@ protected:
     virtual protocol* create_protocol(unsigned index) override;
 };
 
+}
 }
 }

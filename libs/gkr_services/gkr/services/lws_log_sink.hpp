@@ -4,6 +4,8 @@
 
 namespace gkr
 {
+namespace providers
+{
 namespace lws
 {
 
@@ -14,7 +16,9 @@ public:
     virtual ~log_sink() override;
 
 protected:
-    virtual const char* get_info(unsigned& id, std::size_t& ps_size, std::size_t& rx_size, std::size_t& tx_size) override;
+    virtual const char* get_name() override;
+
+    virtual unsigned get_info(std::size_t& ps_size, std::size_t& rx_size, std::size_t& tx_size) override;
 
     virtual void on_other_reason(int reason, const void* data, std::size_t size) override;
 
@@ -31,5 +35,6 @@ protected:
     virtual void on_connection_received_data(const void* data, std::size_t size) override;
 };
 
+}
 }
 }
