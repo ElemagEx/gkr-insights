@@ -7,11 +7,11 @@ namespace gkr
 namespace lws
 {
 
-class log_sink : public server_protocol
+class log_pipe : public client_protocol
 {
 public:
-    log_sink();
-    virtual ~log_sink() override;
+    log_pipe();
+    virtual ~log_pipe() override;
 
 protected:
     virtual const char* get_info(unsigned& id, std::size_t& ps_size, std::size_t& rx_size, std::size_t& tx_size) override;
@@ -21,6 +21,8 @@ protected:
 protected:
     virtual void on_init() override;
     virtual void on_done() override;
+
+    virtual void on_connection_error(const char* reason) override;
 
     virtual void on_connection_opened() override;
     virtual void on_connection_closed() override;

@@ -4,20 +4,18 @@
 
 namespace gkr
 {
-namespace services
-{
 namespace lws
 {
 
-LogSink::LogSink()
+log_sink::log_sink()
 {
 }
 
-LogSink::~LogSink()
+log_sink::~log_sink()
 {
 }
 
-const char* LogSink::get_info(unsigned& id, std::size_t& ps_size, std::size_t& rx_size, std::size_t& tx_size)
+const char* log_sink::get_info(unsigned& id, std::size_t& ps_size, std::size_t& rx_size, std::size_t& tx_size)
 {
     id = 0;
 
@@ -28,34 +26,37 @@ const char* LogSink::get_info(unsigned& id, std::size_t& ps_size, std::size_t& r
     return "gkr-log-sink";
 }
 
-void LogSink::on_init()
+void log_sink::on_other_reason(int reason, const void* data, std::size_t size)
 {
 }
 
-void LogSink::on_done()
+void log_sink::on_init()
 {
 }
 
-void LogSink::on_connection_opened()
+void log_sink::on_done()
 {
 }
 
-void LogSink::on_connection_closed()
+void log_sink::on_connection_opened()
 {
 }
 
-void LogSink::on_connection_received_data()
+void log_sink::on_connection_closed()
 {
 }
 
-void LogSink::on_connection_client_writeable()
+void log_sink::on_connection_pong()
 {
 }
 
-void LogSink::on_connection_server_writeable()
+void log_sink::on_connection_writeable()
 {
 }
 
+void log_sink::on_connection_received_data(const void* data, std::size_t size)
+{
 }
+
 }
 }

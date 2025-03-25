@@ -5,35 +5,77 @@
 #include <utility>
 
 struct lws;
+struct lws_context;
 enum lws_callback_reasons;
 
-namespace libWebSocket
+namespace gkr
+{
+namespace lws
 {
 
-int main_protocol_callback(struct lws*, enum lws_callback_reasons, void*, void*, std::size_t);
-
-class Protocol
+class context;
+class protocol
 {
-    Protocol(const Protocol&) noexcept = delete;
-    Protocol& operator=(const Protocol&) noexcept = delete;
+    friend class context;
+    struct lws_context* m_context = nullptr;
+
+protected:
+    GKR_COMM_API protocol();
 
 public:
-    GKR_COMM_API Protocol();
-    GKR_COMM_API virtual ~Protocol();
-
-    Protocol(Protocol&&) noexcept
-    {
-    }
-    Protocol& operator=(Protocol&&) noexcept
-    {
-        return *this;
-    }
-
-public:
-    virtual const char* get_info(unsigned& id, std::size_t& ps_size, std::size_t& rx_size, std::size_t& tx_size) = 0;
+    GKR_COMM_API virtual ~protocol();
 
 private:
-    friend int main_protocol_callback(struct lws*, enum lws_callback_reasons, void*, void*, std::size_t);
+    void set_parent_context(struct lws_context* context)
+    {
+        m_context = context;
+    }
+protected:
+    struct lws_context* get_parent_context(struct lws_context* context) const
+    {
+        return m_context;
+    }
+
+protected:
+    virtual void* get_callback() = 0;
+
+    virtual const char* get_info(unsigned& id, std::size_t& ps_size, std::size_t& rx_size, std::size_t& tx_size) = 0;
+
+    virtual void on_other_reason(int reason, const void* data, std::size_t size) = 0;
+};
+
+class dummy_protocol : public protocol
+{
+public:
+    GKR_COMM_API dummy_protocol();
+    GKR_COMM_API virtual ~dummy_protocol() override;
+
+protected:
+    virtual void* get_callback() override;
+
+    virtual const char* get_info(unsigned& id, std::size_t& ps_size, std::size_t& rx_size, std::size_t& tx_size) override;
+
+    virtual void on_other_reason(int reason, const void* data, std::size_t size) override;
+
+private:
+    static int dummy_callback(struct lws*, enum lws_callback_reasons, void*, void*, std::size_t);
+};
+
+class server_protocol : public protocol
+{
+public:
+    GKR_COMM_API server_protocol();
+    GKR_COMM_API virtual ~server_protocol() override;
+
+protected:
+    GKR_COMM_API virtual void* get_callback() override;
+
+    virtual const char* get_info(unsigned& id, std::size_t& ps_size, std::size_t& rx_size, std::size_t& tx_size) = 0;
+
+    virtual void on_other_reason(int reason, const void* data, std::size_t size) = 0;
+
+private:
+    static int server_callback(struct lws*, enum lws_callback_reasons, void*, void*, std::size_t);
 
 protected:
     virtual void on_init() = 0;
@@ -42,9 +84,45 @@ protected:
     virtual void on_connection_opened() = 0;
     virtual void on_connection_closed() = 0;
 
-    virtual void on_connection_received_data   () = 0;
-    virtual void on_connection_client_writeable() = 0;
-    virtual void on_connection_server_writeable() = 0;
+    virtual void on_connection_pong() = 0;
+
+    virtual void on_connection_writeable() = 0;
+    virtual void on_connection_received_data(const void* data, std::size_t size) = 0;
 };
 
+class client_protocol : public protocol
+{
+public:
+    GKR_COMM_API client_protocol();
+    GKR_COMM_API virtual ~client_protocol() override;
+
+public:
+    bool connect(const char* url, const char* protocols);
+
+protected:
+    GKR_COMM_API virtual void* get_callback() override;
+
+    virtual const char* get_info(unsigned& id, std::size_t& ps_size, std::size_t& rx_size, std::size_t& tx_size) = 0;
+
+    virtual void on_other_reason(int reason, const void* data, std::size_t size) = 0;
+
+private:
+    static int client_callback(struct lws*, enum lws_callback_reasons, void*, void*, std::size_t);
+
+protected:
+    virtual void on_init() = 0;
+    virtual void on_done() = 0;
+
+    virtual void on_connection_error(const char* reason) = 0;
+
+    virtual void on_connection_opened() = 0;
+    virtual void on_connection_closed() = 0;
+
+    virtual void on_connection_pong() = 0;
+
+    virtual void on_connection_writeable() = 0;
+    virtual void on_connection_received_data(const void* data, std::size_t size) = 0;
+};
+
+}
 }

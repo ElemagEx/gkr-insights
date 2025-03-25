@@ -10,42 +10,24 @@ struct lws_context_creation_info;
 struct lws_http_mount;
 struct lws_protocols;
 
-namespace libWebSocket
+namespace gkr
+{
+namespace lws
 {
 
-class Protocol;
-
-class Context
+class protocol;
+class context
 {
-    Context           (const Context&) noexcept = delete;
-    Context& operator=(const Context&) noexcept = delete;
-
     struct lws_context*   m_context   = nullptr;
     struct lws_protocols* m_protocols = nullptr;
     std::thread           m_thread;
     bool                  m_running   = false;
 
 protected:
-    GKR_COMM_API Context() noexcept;
+    GKR_COMM_API context() noexcept;
 
 public:
-    GKR_COMM_API virtual ~Context() noexcept;
-
-    Context(Context&& other) noexcept
-        : m_context  (std::exchange(other.m_context  , nullptr))
-        , m_protocols(std::exchange(other.m_protocols, nullptr))
-        , m_thread   (std::move    (other.m_thread   ))
-        , m_running  (std::exchange(other.m_running , false))
-    {
-    }
-    Context& operator=(Context&& other) noexcept
-    {
-        m_context   = std::exchange(other.m_context  , nullptr);
-        m_protocols = std::exchange(other.m_protocols, nullptr);
-        m_thread    = std::move    (other.m_thread   );
-        m_running   = std::exchange(other.m_running  , false);
-        return *this;
-    }
+    GKR_COMM_API virtual ~context() noexcept;
 
 public:
     bool is_valid() const
@@ -70,9 +52,10 @@ public:
 protected:
     virtual void get_context_info(unsigned& protocols, unsigned long long& options) = 0;
 
-    virtual bool get_server_info(int& port, unsigned& http_dummy_protocol_index, const struct lws_http_mount*& mount) = 0;
+    virtual bool get_server_info(int& port, const struct lws_http_mount*& mount) = 0;
 
-    virtual Protocol* create_protocol(unsigned index) = 0;
+    virtual protocol* create_protocol(unsigned index) = 0;
 };
 
+}
 }

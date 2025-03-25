@@ -2,8 +2,8 @@
 
 #include <gkr/api.hpp>
 
-#ifndef BUILDING_GKR_COMM_X
-#define GKR_COMM_X_API GKR_API_IMPORT
+#ifndef BUILDING_GKR_PIPES
+#define GKR_PIPES_API GKR_API_IMPORT
 #else
-#define GKR_COMM_X_API GKR_API_EXPORT
+#define GKR_PIPES_API GKR_API_EXPORT
 #endif

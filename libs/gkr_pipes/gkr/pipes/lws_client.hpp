@@ -7,21 +7,21 @@ namespace gkr
 namespace lws
 {
 
-class server : public context
+class client : public context
 {
-//  server(const server&) noexcept = delete;
-//  server& operator=(const server&) noexcept = delete;
+//  client(const client&) noexcept = delete;
+//  client& operator=(const client&) noexcept = delete;
 
 public:
-    server() noexcept;
-    virtual ~server() noexcept override;
+    client() noexcept;
+    virtual ~client() noexcept override;
 
-//  server(server&& other) noexcept : context(std::move(other))
+//  client(client&& other) noexcept : context(std::move(other))
 //  {
 //  }
-//  server& operator=(server&& other) noexcept
+//  client& operator=(client&& other) noexcept
 //  {
-//      server::operator=(std::move(other));
+//      context::operator=(std::move(other));
 //      return *this;
 //  }
 

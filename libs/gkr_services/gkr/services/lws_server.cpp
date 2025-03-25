@@ -9,26 +9,24 @@
 
 namespace gkr
 {
-namespace services
-{
 namespace lws
 {
 
-Server::Server() noexcept
+server::server() noexcept
 {
 }
 
-Server::~Server() noexcept
+server::~server() noexcept
 {
 }
 
-void Server::get_context_info(unsigned& protocols, unsigned long long& options)
+void server::get_context_info(unsigned& protocols, unsigned long long& options)
 {
     protocols = 2;
     options   = LWS_SERVER_OPTION_HTTP_HEADERS_SECURITY_BEST_PRACTICES_ENFORCE;
 }
 
-bool Server::get_server_info(int& port, unsigned& http_dummy_protocol_index, const struct lws_http_mount*& mount)
+bool server::get_server_info(int& port, const struct lws_http_mount*& mount)
 {
     static const struct lws_http_mount http_mount
     {
@@ -50,21 +48,20 @@ bool Server::get_server_info(int& port, unsigned& http_dummy_protocol_index, con
         /* .mountpoint_len */        1,                /* char count */
         /* .basic_auth_login_file */ nullptr,
     };
-    port = 7681;
-    http_dummy_protocol_index = 0;
+    port  = 7681;
     mount = &http_mount;
     return true;
 }
 
-Protocol* Server::create_protocol(unsigned index)
+protocol* server::create_protocol(unsigned index)
 {
     switch(index)
     {
-        case 1: return new LogSink();
+        case 0: return new dummy_protocol();
+        case 1: return new log_sink();
     }
     Check_Failure(nullptr);
 }
 
-}
 }
 }
