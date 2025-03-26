@@ -7,29 +7,32 @@ namespace gkr
 namespace comm
 {
 
-lws_log_consumer::lws_log_consumer()
+web_socket_log_consumer::web_socket_log_consumer(
+    const char* url,
+    const char* provider
+    )
 {
 }
 
-lws_log_consumer::~lws_log_consumer()
+web_socket_log_consumer::~web_socket_log_consumer()
 {
 }
 
-bool lws_log_consumer::init_logging()
+bool web_socket_log_consumer::init_logging()
 {
     return true;
 }
 
-void lws_log_consumer::done_logging()
+void web_socket_log_consumer::done_logging()
 {
 }
 
-bool lws_log_consumer::filter_log_message(const log::message& msg)
+bool web_socket_log_consumer::filter_log_message(const log::message& msg)
 {
     return false;
 }
 
-void lws_log_consumer::consume_log_message(const log::message& msg)
+void web_socket_log_consumer::consume_log_message(const log::message& msg)
 {
 }
 

@@ -7,11 +7,14 @@ namespace gkr
 namespace comm
 {
 
-class lws_log_consumer : public log::consumer
+class web_socket_log_consumer : public log::consumer
 {
 public:
-    lws_log_consumer();
-    virtual ~lws_log_consumer() override;
+    web_socket_log_consumer(
+        const char* url,
+        const char* provider = nullptr
+        );
+    virtual ~web_socket_log_consumer() override;
 
 protected:
     virtual bool init_logging() override;

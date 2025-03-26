@@ -14,13 +14,15 @@ struct lws_protocols;
 
 namespace gkr
 {
+namespace comm
+{
 namespace providers
 {
-namespace lws
+namespace libwebsocket
 {
 
 class protocol;
-class context : public comm::provider
+class context : public provider
 {
     struct lws_context*   m_context   = nullptr;
     struct lws_protocols* m_protocols = nullptr;
@@ -66,6 +68,7 @@ protected:
     virtual protocol* create_protocol(unsigned index) = 0;
 };
 
+}
 }
 }
 }

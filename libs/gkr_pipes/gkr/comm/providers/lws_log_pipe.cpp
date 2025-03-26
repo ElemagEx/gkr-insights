@@ -4,9 +4,11 @@
 
 namespace gkr
 {
+namespace comm
+{
 namespace providers
 {
-namespace lws
+namespace libwebsocket
 {
 
 log_pipe::log_pipe()
@@ -66,6 +68,7 @@ void log_pipe::on_connection_received_data(const void* data, std::size_t size)
 {
 }
 
+}
 }
 }
 }

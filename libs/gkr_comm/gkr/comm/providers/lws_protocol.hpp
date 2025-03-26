@@ -12,9 +12,11 @@ enum lws_callback_reasons;
 
 namespace gkr
 {
+namespace comm
+{
 namespace providers
 {
-namespace lws
+namespace libwebsocket
 {
 
 class context;
@@ -138,6 +140,7 @@ protected:
     virtual void on_connection_received_data(const void* data, std::size_t size) = 0;
 };
 
+}
 }
 }
 }

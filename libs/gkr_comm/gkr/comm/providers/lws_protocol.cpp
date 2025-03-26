@@ -10,9 +10,11 @@
 
 namespace gkr
 {
+namespace comm
+{
 namespace providers
 {
-namespace lws
+namespace libwebsocket
 {
 
 struct per_vhost_data
@@ -229,6 +231,7 @@ int client_protocol::client_callback(struct lws* wsi, enum lws_callback_reasons 
     return 0;
 }
 
+}
 }
 }
 }

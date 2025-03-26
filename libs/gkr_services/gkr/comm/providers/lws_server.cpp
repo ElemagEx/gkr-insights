@@ -9,9 +9,11 @@
 
 namespace gkr
 {
+namespace comm
+{
 namespace providers
 {
-namespace lws
+namespace libwebsocket
 {
 
 server* server::create()
@@ -75,6 +77,7 @@ protocol* server::create_protocol(unsigned index)
     Check_Failure(nullptr);
 }
 
+}
 }
 }
 }

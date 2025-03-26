@@ -13,9 +13,11 @@
 
 namespace gkr
 {
+namespace comm
+{
 namespace providers
 {
-namespace lws
+namespace libwebsocket
 {
 
 context::context() noexcept
@@ -148,6 +150,7 @@ void context::stop()
     m_thread.join();
 }
 
+}
 }
 }
 }

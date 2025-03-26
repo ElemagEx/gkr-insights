@@ -4,9 +4,11 @@
 
 namespace gkr
 {
+namespace comm
+{
 namespace providers
 {
-namespace lws
+namespace libwebsocket
 {
 
 class client : public context
@@ -29,6 +31,7 @@ protected:
     virtual protocol* create_protocol(unsigned index) override;
 };
 
+}
 }
 }
 }

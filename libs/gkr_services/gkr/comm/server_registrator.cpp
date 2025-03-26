@@ -14,7 +14,7 @@ struct gkr_comm_provider* gkr_comm_server_register_provider(const char* name)
 
     if((name == nullptr) || !std::strcmp(name, "libwebsocket"))
     {
-        provider = gkr::providers::lws::server::create();
+        provider = gkr::comm::providers::libwebsocket::server::create();
     }
 
     if(provider == nullptr) return nullptr;

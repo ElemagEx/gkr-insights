@@ -4,9 +4,11 @@
 
 namespace gkr
 {
+namespace comm
+{
 namespace providers
 {
-namespace lws
+namespace libwebsocket
 {
 
 class log_sink : public server_protocol
@@ -35,6 +37,7 @@ protected:
     virtual void on_connection_received_data(const void* data, std::size_t size) override;
 };
 
+}
 }
 }
 }
