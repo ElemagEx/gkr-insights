@@ -20,7 +20,7 @@ namespace lws
 {
 
 class protocol;
-class context : public provider
+class context : public comm::provider
 {
     struct lws_context*   m_context   = nullptr;
     struct lws_protocols* m_protocols = nullptr;

@@ -10,9 +10,7 @@ target_link_libraries(gkr_pipes PRIVATE websockets_shared)#???
 
 target_sources(
     gkr_pipes
-    INTERFACE
-    "gkr/pipes/api.hpp"
-    "gkr/pipes/client_factory.hpp"
+    PRIVATE
     "gkr/pipes/lws_client.hpp"
     "gkr/pipes/lws_log_pipe.hpp"
     "gkr/pipes/lws_log_consumer.hpp"
@@ -20,7 +18,7 @@ target_sources(
 target_sources(
     gkr_pipes
     PRIVATE
-    "gkr/pipes/client_factory.cpp"
+    "gkr/pipes/registrator.cpp"
     "gkr/pipes/lws_client.cpp"
     "gkr/pipes/lws_log_pipe.cpp"
     "gkr/pipes/lws_log_consumer.cpp"

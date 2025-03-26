@@ -1,9 +1,3 @@
 #pragma once
 
-#include <gkr/api.hpp>
-
-#ifndef BUILDING_GKR_COMM
-#define GKR_COMM_API GKR_API_IMPORT
-#else
-#define GKR_COMM_API GKR_API_EXPORT
-#endif
+#include <gkr/capi/comm/api.h>

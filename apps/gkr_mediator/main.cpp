@@ -1,8 +1,7 @@
 #include <gkr/defs.hpp>
 
 #include <gkr/net/lib.hpp>
-#include <gkr/comm/storage.hpp>
-#include <gkr/services/server_factory.hpp>
+#include <gkr/comm/registry.hpp>
 
 #include <gkr/log/logging.hpp>
 #include <gkr/log/defs/generic_cdefs.hpp>
@@ -13,10 +12,9 @@
 
 constexpr gkr_log_name_id_pair g_severities_infos[] = LOG_SEVERITIES_INFOS;
 
-static gkr::log::logging s_logging("logger", 32U, 1023U, g_severities_infos);
-static gkr::net::lib;
-
-static gkr::providers::storage services_providers(false);
+static gkr::net ::lib      s_lib;
+static gkr::log ::logging  s_logging("logger", 32U, 1023U, g_severities_infos);
+static gkr::comm::registry s_providers(false);
 
 int main(int argc, int argv)
 {
@@ -24,9 +22,9 @@ int main(int argc, int argv)
 
     LOGI("Server start");
 
-    services_providers.add_provider(gkr::providers::create_server_provider());
+    s_providers.register_server_provider(nullptr);
 
-    if(!services_providers.start())
+    if(!s_providers.start_all())
     {
         LOGF("Server initialization failed");
     }
@@ -34,11 +32,9 @@ int main(int argc, int argv)
     {
         std::getline(std::cin, line);
 
-        if(line.empty())
-        {
-            services_providers.stop();
-            break;
-        }
+        if(line.empty()) break;
     }
+    s_providers.stop_all();
+
     LOGI("Server finish");
 }

@@ -6,18 +6,12 @@ target_include_directories(gkr_services PUBLIC ".")
 target_link_libraries(gkr_services PRIVATE gkr_inline gkr_core gkr_log)
 target_link_libraries(gkr_services PUBLIC  gkr_comm)
 
-target_link_libraries(gkr_services PRIVATE websockets_shared)#???
+target_link_libraries(gkr_services PRIVATE websockets_shared)
 
 target_sources(
     gkr_services
-    INTERFACE
-    "gkr/services/api.hpp"
-    "gkr/services/server_factory.hpp"
-)
-target_sources(
-    gkr_services
     PRIVATE
-    "gkr/services/server_factory.cpp"
+    "gkr/services/registrator.cpp"
 )
 target_sources(
     gkr_services

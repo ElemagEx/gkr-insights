@@ -4,7 +4,7 @@
 
 namespace gkr
 {
-namespace providers
+namespace comm
 {
 
 class provider
