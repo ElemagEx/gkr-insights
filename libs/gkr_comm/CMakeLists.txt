@@ -9,20 +9,30 @@ target_link_libraries(gkr_comm PRIVATE websockets_shared)
 target_sources(
     gkr_comm
     INTERFACE
-    "gkr/comm/api.hpp"
+    "gkr/capi/comm/api.h"
+    "gkr/capi/comm/registry.h"
 )
 target_sources(
     gkr_comm
-    PUBLIC
-    "gkr/comm/registry.hpp"
+    INTERFACE
+    "gkr/comm/api.hpp"
     "gkr/comm/provider.hpp"
-    "gkr/comm/lws_context.hpp"
-    "gkr/comm/lws_protocol.hpp"
+    "gkr/comm/registry.hpp"
 )
 target_sources(
     gkr_comm
     PRIVATE
     "gkr/comm/registry.cpp"
-    "gkr/comm/lws_context.cpp"
-    "gkr/comm/lws_protocol.cpp"
+)
+target_sources(
+    gkr_comm
+    PUBLIC
+    "gkr/comm/providers/lws_context.hpp"
+    "gkr/comm/providers/lws_protocol.hpp"
+)
+target_sources(
+    gkr_comm
+    PRIVATE
+    "gkr/comm/providers/lws_context.cpp"
+    "gkr/comm/providers/lws_protocol.cpp"
 )

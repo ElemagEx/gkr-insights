@@ -1,10 +1,10 @@
 #include <gkr/defs.hpp>
 
-#include <gkr/pipes/lws_log_consumer.hpp>
+#include <gkr/comm/web_socket_log_consumer.hpp>
 
 namespace gkr
 {
-namespace pipes
+namespace comm
 {
 
 lws_log_consumer::lws_log_consumer()

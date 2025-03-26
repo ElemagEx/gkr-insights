@@ -1,6 +1,6 @@
 #include <gkr/defs.hpp>
 
-#include <gkr/pipes/lws_log_pipe.hpp>
+#include <gkr/comm/providers/lws_log_pipe.hpp>
 
 namespace gkr
 {

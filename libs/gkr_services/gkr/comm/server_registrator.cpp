@@ -1,20 +1,20 @@
 #pragma once
 
 #include <gkr/comm/registry.hpp>
-#include <gkr/pipes/lws_client.hpp>
+#include <gkr/comm/providers/lws_server.hpp>
 
 #include <cstring>
 
 extern "C"
 {
 
-struct gkr_comm_provider* gkr_comm_register_client_provider(const char* name)
+struct gkr_comm_provider* gkr_comm_server_register_provider(const char* name)
 {
     gkr::comm::provider* provider = nullptr;
 
     if((name == nullptr) || !std::strcmp(name, "libwebsocket"))
     {
-        provider = gkr::providers::lws::client::create();
+        provider = gkr::providers::lws::server::create();
     }
 
     if(provider == nullptr) return nullptr;

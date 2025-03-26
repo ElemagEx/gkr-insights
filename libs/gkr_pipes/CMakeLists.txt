@@ -10,16 +10,25 @@ target_link_libraries(gkr_pipes PRIVATE websockets_shared)#???
 
 target_sources(
     gkr_pipes
-    PRIVATE
-    "gkr/pipes/lws_client.hpp"
-    "gkr/pipes/lws_log_pipe.hpp"
-    "gkr/pipes/lws_log_consumer.hpp"
+    PUBLIC
+    "gkr/comm/client_registrator.hpp"
+    "gkr/comm/web_socket_log_consumer.hpp"
 )
 target_sources(
     gkr_pipes
     PRIVATE
-    "gkr/pipes/registrator.cpp"
-    "gkr/pipes/lws_client.cpp"
-    "gkr/pipes/lws_log_pipe.cpp"
-    "gkr/pipes/lws_log_consumer.cpp"
+    "gkr/comm/client_registrator.cpp"
+    "gkr/comm/web_socket_log_consumer.cpp"
+)
+target_sources(
+    gkr_pipes
+    PRIVATE
+    "gkr/comm/providers/lws_client.hpp"
+    "gkr/comm/providers/lws_log_pipe.hpp"
+)
+target_sources(
+    gkr_pipes
+    PRIVATE
+    "gkr/comm/providers/lws_client.cpp"
+    "gkr/comm/providers/lws_log_pipe.cpp"
 )

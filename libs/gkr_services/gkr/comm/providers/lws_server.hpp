@@ -1,6 +1,6 @@
 #pragma once
 
-#include <gkr/comm/lws_context.hpp>
+#include <gkr/comm/providers/lws_context.hpp>
 
 namespace gkr
 {

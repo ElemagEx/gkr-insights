@@ -1,7 +1,7 @@
 #include <gkr/defs.hpp>
 
-#include <gkr/comm/lws_context.hpp>
-#include <gkr/comm/lws_protocol.hpp>
+#include <gkr/comm/providers/lws_context.hpp>
+#include <gkr/comm/providers/lws_protocol.hpp>
 
 #include <gkr/diagnostics.hpp>
 #include <gkr/log/defs/generic_cdefs.hpp>

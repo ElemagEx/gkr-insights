@@ -10,18 +10,23 @@ target_link_libraries(gkr_services PRIVATE websockets_shared)
 
 target_sources(
     gkr_services
-    PRIVATE
-    "gkr/services/registrator.cpp"
+    PUBLIC
+    "gkr/comm/server_registrator.hpp"
 )
 target_sources(
     gkr_services
     PRIVATE
-    "gkr/services/lws_server.hpp"
-    "gkr/services/lws_log_sink.hpp"
+    "gkr/comm/server_registrator.cpp"
 )
 target_sources(
     gkr_services
     PRIVATE
-    "gkr/services/lws_server.cpp"
-    "gkr/services/lws_log_sink.cpp"
+    "gkr/comm/providers/lws_server.hpp"
+    "gkr/comm/providers/lws_log_sink.hpp"
+)
+target_sources(
+    gkr_services
+    PRIVATE
+    "gkr/comm/providers/lws_server.cpp"
+    "gkr/comm/providers/lws_log_sink.cpp"
 )

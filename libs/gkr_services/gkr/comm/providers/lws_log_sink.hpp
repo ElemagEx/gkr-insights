@@ -1,6 +1,6 @@
 #pragma once
 
-#include <gkr/comm/lws_protocol.hpp>
+#include <gkr/comm/providers/lws_protocol.hpp>
 
 namespace gkr
 {
@@ -9,11 +9,11 @@ namespace providers
 namespace lws
 {
 
-class log_pipe : public client_protocol
+class log_sink : public server_protocol
 {
 public:
-    log_pipe();
-    virtual ~log_pipe() override;
+    log_sink();
+    virtual ~log_sink() override;
 
 protected:
     virtual const char* get_name() override;
@@ -25,8 +25,6 @@ protected:
 protected:
     virtual void on_init() override;
     virtual void on_done() override;
-
-    virtual void on_connection_error(const char* reason) override;
 
     virtual void on_connection_opened() override;
     virtual void on_connection_closed() override;

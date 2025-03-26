@@ -1,7 +1,7 @@
 #include <gkr/defs.hpp>
 
-#include <gkr/services/lws_server.hpp>
-#include <gkr/services/lws_log_sink.hpp>
+#include <gkr/comm/providers/lws_server.hpp>
+#include <gkr/comm/providers/lws_log_sink.hpp>
 
 #include <gkr/diagnostics.hpp>
 

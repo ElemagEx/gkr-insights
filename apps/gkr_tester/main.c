@@ -19,15 +19,24 @@ int init(int argc, int argv)
     gkr_log_init(NULL, 32, 1024, severities_infos, NULL);
     gkr_log_add_app_console_consumer(NULL, NULL, &console_callbacks, gkr_log_appConsoleWriteMethod_puts, 0);
 
+    LOGV("Tester starting...");
+
     gkr_comm_providers_registry_init(1);
-    gkr_comm_register_client_provider(NULL);
+    gkr_comm_client_register_provider(NULL);
+    gkr_comm_providers_start_all();
+
+    LOGI("Tester started");
 
     return 1;
 }
 
 void done()
 {
+    LOGV("Tester stopping...");
+
     gkr_comm_providers_registry_done();
+
+    LOGV("Tester stopped");
 
     gkr_log_done();
 
@@ -36,21 +45,17 @@ void done()
 
 int main(int argc, int argv)
 {
-    init(argc, argv);
-    LOGI("Tester start");
-
-    if(!gkr_comm_providers_start_all())
+    if(!init(argc, argv))
     {
         LOGF("Tester initialization failed");
     }
     else for(char buf[64]; ; )
     {
+        LOGI("Tester Running...");
+
         gets_s(buf, sizeof(buf));
 
         if(*buf == 0) break;
     }
-    gkr_comm_providers_stop_all();
-
-    LOGI("Tester finish");
     done();
 }

@@ -4,7 +4,7 @@
 
 namespace gkr
 {
-namespace pipes
+namespace comm
 {
 
 class lws_log_consumer : public log::consumer

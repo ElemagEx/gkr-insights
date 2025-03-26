@@ -14,7 +14,7 @@ constexpr gkr_log_name_id_pair g_severities_infos[] = LOG_SEVERITIES_INFOS;
 
 static gkr::net ::lib      s_lib;
 static gkr::log ::logging  s_logging("logger", 32U, 1023U, g_severities_infos);
-static gkr::comm::registry s_providers(false);
+static gkr::comm::registry s_registry(false);
 
 int main(int argc, int argv)
 {
@@ -22,9 +22,9 @@ int main(int argc, int argv)
 
     LOGI("Server start");
 
-    s_providers.register_server_provider(nullptr);
+    s_registry.server_register_provider(nullptr);
 
-    if(!s_providers.start_all())
+    if(!s_registry.start_all_providers())
     {
         LOGF("Server initialization failed");
     }
@@ -34,7 +34,7 @@ int main(int argc, int argv)
 
         if(line.empty()) break;
     }
-    s_providers.stop_all();
+    s_registry.stop_all_providers();
 
     LOGI("Server finish");
 }

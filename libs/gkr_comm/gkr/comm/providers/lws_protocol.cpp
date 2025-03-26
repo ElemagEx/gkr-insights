@@ -1,6 +1,6 @@
 #include <gkr/defs.hpp>
 
-#include <gkr/comm/lws_protocol.hpp>
+#include <gkr/comm/providers/lws_protocol.hpp>
 
 #include <gkr/url.hpp>
 #include <gkr/diagnostics.hpp>

@@ -22,23 +22,23 @@ struct registry final
     }
 
 public:
-    bool start_all()
+    bool start_all_providers()
     {
         return gkr_comm_providers_start_all();
     }
-    bool stop_all()
+    bool stop_all_providers()
     {
         return gkr_comm_providers_stop_all();
     }
 
 public:
-    provider* register_client_provider(const char* name)
+    provider* client_register_provider(const char* name)
     {
-        return reinterpret_cast<provider*>(gkr_comm_register_client_provider(name));
+        return reinterpret_cast<provider*>(gkr_comm_client_register_provider(name));
     }
-    provider* register_server_provider(const char* name)
+    provider* server_register_provider(const char* name)
     {
-        return reinterpret_cast<provider*>(gkr_comm_register_server_provider(name));
+        return reinterpret_cast<provider*>(gkr_comm_server_register_provider(name));
     }
 
 public:
