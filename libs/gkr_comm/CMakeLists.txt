@@ -10,19 +10,27 @@ target_sources(
     gkr_comm
     INTERFACE
     "gkr/capi/comm/api.h"
+    "gkr/capi/comm/names.h"
+    "gkr/capi/comm/params.h"
     "gkr/capi/comm/registry.h"
 )
 target_sources(
     gkr_comm
     INTERFACE
     "gkr/comm/api.hpp"
-    "gkr/comm/provider.hpp"
     "gkr/comm/registry.hpp"
+    "gkr/comm/end_point.hpp"
+    "gkr/comm/provider.hpp"
+    "gkr/comm/service.hpp"
+    "gkr/comm/bridge.hpp"
+    "gkr/comm/params.hpp"
+    "gkr/comm/names.hpp"
 )
 target_sources(
     gkr_comm
     PRIVATE
     "gkr/comm/registry.cpp"
+    "gkr/comm/bridge.cpp"
 )
 target_sources(
     gkr_comm

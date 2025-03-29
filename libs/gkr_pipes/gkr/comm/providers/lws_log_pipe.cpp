@@ -21,7 +21,7 @@ log_pipe::~log_pipe()
 
 const char* log_pipe::get_name()
 {
-    return "gkr-log-sink";
+    return NAME;
 }
 
 unsigned log_pipe::get_info(std::size_t& ps_size, std::size_t& rx_size, std::size_t& tx_size)
@@ -65,6 +65,26 @@ void log_pipe::on_connection_writeable()
 }
 
 void log_pipe::on_connection_received_data(const void* data, std::size_t size)
+{
+}
+
+void log_pipe::connect()
+{
+}
+
+void log_pipe::listen()
+{
+}
+
+void log_pipe::close()
+{
+}
+
+void log_pipe::on_data_sent()
+{
+}
+
+void log_pipe::on_error()
 {
 }
 

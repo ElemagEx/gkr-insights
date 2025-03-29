@@ -22,6 +22,12 @@ struct registry final
     }
 
 public:
+    static provider* find_provider(const char* name)
+    {
+        return reinterpret_cast<provider*>(gkr_comm_providers_find_in_registry(name));
+    }
+
+public:
     bool start_all_providers()
     {
         return gkr_comm_providers_start_all();

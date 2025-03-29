@@ -3,6 +3,8 @@
 #include <gkr/comm/providers/lws_server.hpp>
 #include <gkr/comm/providers/lws_log_sink.hpp>
 
+#include <gkr/comm/bridge.hpp>
+
 #include <gkr/diagnostics.hpp>
 
 #include <libwebsockets.h>
@@ -34,10 +36,24 @@ void server::release()
     delete this;
 }
 
-void server::get_context_info(unsigned& protocols, unsigned long long& options)
+std::shared_ptr<bridge> server::create_bridge(const char* service_name, end_point* ep)
 {
-    protocols = 2;
-    options   = LWS_SERVER_OPTION_HTTP_HEADERS_SECURITY_BEST_PRACTICES_ENFORCE;
+    Check_Arg_NotNull(service_name, {});
+    Check_Arg_NotNull(ep          , {});
+
+    service* s = nullptr;
+
+    if(s == nullptr)
+    {
+        Check_Recovery("Unknown/unsupported service name");
+        return nullptr;
+    }
+    return std::make_shared<bridge>(ep, s);
+}
+
+void server::get_context_info(unsigned long long& options)
+{
+    options = LWS_SERVER_OPTION_HTTP_HEADERS_SECURITY_BEST_PRACTICES_ENFORCE;
 }
 
 bool server::get_server_info(int& port, const struct lws_http_mount*& mount)
@@ -65,16 +81,6 @@ bool server::get_server_info(int& port, const struct lws_http_mount*& mount)
     port  = 7681;
     mount = &http_mount;
     return true;
-}
-
-protocol* server::create_protocol(unsigned index)
-{
-    switch(index)
-    {
-        case 0: return new dummy_protocol();
-        case 1: return new log_sink();
-    }
-    Check_Failure(nullptr);
 }
 
 }

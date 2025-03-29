@@ -14,6 +14,9 @@ namespace libwebsocket
 class log_pipe : public client_protocol
 {
 public:
+    static constexpr const char* NAME = "gkr-log-pipe";
+
+public:
     log_pipe();
     virtual ~log_pipe() override;
 
@@ -37,6 +40,14 @@ protected:
 
     virtual void on_connection_writeable() override;
     virtual void on_connection_received_data(const void* data, std::size_t size) override;
+
+protected:
+    virtual void connect() override;
+    virtual void listen() override;
+    virtual void close() override;
+
+    virtual void on_data_sent() override;
+    virtual void on_error() override;
 };
 
 }

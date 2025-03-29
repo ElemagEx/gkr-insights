@@ -2,6 +2,8 @@
 
 #include <gkr/comm/api.hpp>
 
+#include <gkr/comm/service.hpp>
+
 #include <gkr/url.hpp>
 
 #include <utility>
@@ -20,7 +22,7 @@ namespace libwebsocket
 {
 
 class context;
-class protocol
+class protocol : public service
 {
     friend class context;
     struct lws_context* m_context = nullptr;

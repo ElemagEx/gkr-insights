@@ -22,6 +22,8 @@ namespace libwebsocket
 
 context::context() noexcept
 {
+    m_protocols.reserve(4);
+    m_protocols.push_back(LWS_PROTOCOL_LIST_TERM);
 }
 
 context::~context() noexcept
@@ -30,44 +32,23 @@ context::~context() noexcept
 
 int context::thread_init()
 {
+    if(m_protocols.size() < 2) return -1;
+
     struct lws_context_creation_info info;
+
     std::memset(&info, 0, sizeof(info));
 
-    unsigned protocols = 0;
-    get_context_info(protocols, info.options);
+    info.user      = this;
+    info.protocols = m_protocols.data();
 
+    get_context_info(info.options);
     get_server_info(info.port, info.mounts);
-
-    m_protocols = static_cast<struct lws_protocols*>(std::malloc(sizeof(struct lws_protocols) * std::size_t(protocols + 1)));
-
-    Check_NotNullPtr(m_protocols, -1);
-
-    std::memset(m_protocols, 0, sizeof(struct lws_protocols) * std::size_t(protocols + 1));
-
-    for(unsigned index = 0; index < protocols; ++index)
-    {
-        struct lws_protocols& proto = m_protocols[index];
-
-        proto.user = create_protocol(index);
-
-        Check_NotNullPtr(proto.user, -1);
-
-        proto.callback = static_cast<lws_callback_function *>(static_cast<protocol*>(proto.user)->get_callback());
-        proto.name     = static_cast<protocol*>(proto.user)->get_name();
-        proto.id       = static_cast<protocol*>(proto.user)->get_info(
-            proto.per_session_data_size,
-            proto.rx_buffer_size,
-            proto.tx_packet_size);
-    }
-    m_protocols[protocols] = LWS_PROTOCOL_LIST_TERM;
-
-    info.user = this;
 
     m_context = lws_create_context(&info);
 
     if(m_context == nullptr) return -1;
 
-    for(unsigned index = 0; index < protocols; ++index)
+    for(std::size_t index = 0; index < m_protocols.size() - 1; ++index)
     {
         static_cast<protocol*>(m_protocols[index].user)->set_parent_context(m_context);
     }
@@ -76,9 +57,9 @@ int context::thread_init()
 
 void context::thread_loop()
 {
-	for(m_running = true; m_running; )
+    for(m_running = true; m_running; )
     {
-		if(0 > lws_service(m_context, 0))
+        if(0 > lws_service(m_context, 0))
         {
             m_running = false;
         }
@@ -87,20 +68,6 @@ void context::thread_loop()
 
 void context::thread_done()
 {
-    if(m_protocols != nullptr)
-    {
-        for(unsigned index = 0; ; ++index)
-        {
-            struct lws_protocols& proto = m_protocols[index];
-
-            if(proto.name == nullptr) break;
-            if(proto.user == nullptr) continue;
-
-            delete static_cast<protocol*>(proto.user);
-        }
-        std::free(m_protocols);
-        m_protocols = nullptr;
-    }
     if(m_context != nullptr)
     {
         lws_context_destroy(m_context);
@@ -141,13 +108,46 @@ bool context::start()
 
 void context::stop()
 {
-    Check_ValidState(m_thread.joinable(), );
+    if(!m_thread.joinable()) return;
 
     m_running = false;
 
     lws_cancel_service(m_context);
 
     m_thread.join();
+}
+
+protocol* context::find_protocol(const char* name)
+{
+    Check_Arg_NotNull(name);
+
+    for(std::size_t index = 0; index < m_protocols.size(); ++index)
+    {
+        protocol* p = static_cast<protocol*>(m_protocols[index].user);
+
+        if(!std::strcmp(name, p->get_name()))
+        {
+            return p;
+        }
+    }
+    return nullptr;
+}
+
+void context::add_protocol(protocol* p)
+{
+    Assert_Check(!m_protocols.empty());
+
+    struct lws_protocols& proto = m_protocols.back();
+
+    proto.user     = p;
+    proto.callback = static_cast<lws_callback_function *>(static_cast<protocol*>(proto.user)->get_callback());
+    proto.name     = static_cast<protocol*>(proto.user)->get_name();
+    proto.id       = static_cast<protocol*>(proto.user)->get_info(
+        proto.per_session_data_size,
+        proto.rx_buffer_size,
+        proto.tx_packet_size);
+
+    m_protocols.push_back(LWS_PROTOCOL_LIST_TERM);
 }
 
 }

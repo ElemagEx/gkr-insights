@@ -3,6 +3,9 @@
 #include <gkr/comm/providers/lws_client.hpp>
 #include <gkr/comm/providers/lws_log_pipe.hpp>
 
+#include <gkr/comm/names.hpp>
+#include <gkr/comm/bridge.hpp>
+
 #include <gkr/diagnostics.hpp>
 
 #include <libwebsockets.h>
@@ -34,10 +37,35 @@ void client::release()
     delete this;
 }
 
-void client::get_context_info(unsigned& protocols, unsigned long long& options)
+std::shared_ptr<bridge> client::create_bridge(const char* service_name, end_point* ep)
 {
-    protocols = 1;
-    options   = LWS_SERVER_OPTION_DO_SSL_GLOBAL_INIT;
+    Check_Arg_NotNull(service_name, {});
+    Check_Arg_NotNull(ep          , {});
+
+    service* s = nullptr;
+
+    if(!std::strcmp(service_name, GKR_COMM_SERVICE_LOG_CONSUMER))
+    {
+        protocol* p = find_protocol(log_pipe::NAME);
+
+        if(p == nullptr)
+        {
+            p = new log_pipe();
+            add_protocol(p);
+            s = p;
+        }
+    }
+    if(s == nullptr)
+    {
+        Check_Recovery("Unknown/unsupported service name");
+        return nullptr;
+    }
+    return std::make_shared<bridge>(ep, s);
+}
+
+void client::get_context_info(unsigned long long& options)
+{
+    options = LWS_SERVER_OPTION_DO_SSL_GLOBAL_INIT;
 }
 
 bool client::get_server_info(int& port, const struct lws_http_mount*& mount)
@@ -45,15 +73,6 @@ bool client::get_server_info(int& port, const struct lws_http_mount*& mount)
     port  = CONTEXT_PORT_NO_LISTEN;
     mount = nullptr;
     return true;
-}
-
-protocol* client::create_protocol(unsigned index)
-{
-    switch(index)
-    {
-        case 0: return new log_pipe();
-    }
-    Check_Failure(nullptr);
 }
 
 }

@@ -4,8 +4,8 @@
 
 #include <gkr/comm/provider.hpp>
 
-#include <utility>
 #include <thread>
+#include <vector>
 
 struct lws_context;
 struct lws_context_creation_info;
@@ -24,10 +24,12 @@ namespace libwebsocket
 class protocol;
 class context : public provider
 {
-    struct lws_context*   m_context   = nullptr;
-    struct lws_protocols* m_protocols = nullptr;
-    std::thread           m_thread;
-    bool                  m_running   = false;
+    using protocols_t = std::vector<struct lws_protocols>;
+
+    struct lws_context* m_context   = nullptr;
+    protocols_t         m_protocols;
+    std::thread         m_thread;
+    bool                m_running   = false;
 
 protected:
     GKR_COMM_API context() noexcept;
@@ -61,11 +63,14 @@ protected:
     GKR_COMM_API virtual void stop () override;
 
 protected:
-    virtual void get_context_info(unsigned& protocols, unsigned long long& options) = 0;
+    GKR_COMM_API protocol* find_protocol(const char* name);
+
+    GKR_COMM_API void add_protocol(protocol* p);
+
+protected:
+    virtual void get_context_info(unsigned long long& options) = 0;
 
     virtual bool get_server_info(int& port, const struct lws_http_mount*& mount) = 0;
-
-    virtual protocol* create_protocol(unsigned index) = 0;
 };
 
 }
