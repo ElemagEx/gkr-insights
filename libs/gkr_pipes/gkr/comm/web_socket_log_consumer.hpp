@@ -4,9 +4,12 @@
 
 #include <gkr/comm/end_point.hpp>
 #include <gkr/comm/bridge.hpp>
+#include <gkr/url.hpp>
 
 namespace gkr
 {
+class params;
+
 namespace comm
 {
 
@@ -16,8 +19,12 @@ class web_socket_log_consumer
 {
 public:
     web_socket_log_consumer(
+        const params& parameters
+        );
+    web_socket_log_consumer(
         const char* url,
-        const char* provider_name = nullptr
+        const char* provider_name = nullptr,
+        const params* parameters = nullptr
         );
     virtual ~web_socket_log_consumer() override;
 
@@ -36,6 +43,7 @@ protected:
 
 private:
     std::shared_ptr<bridge> m_bridge;
+    url                     m_url;
 };
 
 }

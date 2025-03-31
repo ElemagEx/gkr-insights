@@ -12,8 +12,15 @@ namespace comm
 {
 
 web_socket_log_consumer::web_socket_log_consumer(
+    const params& parameters
+    )
+{
+}
+
+web_socket_log_consumer::web_socket_log_consumer(
     const char* url,
-    const char* provider_name
+    const char* provider_name,
+    const params* parameters
     )
 {
     provider* p = registry::find_provider(provider_name);

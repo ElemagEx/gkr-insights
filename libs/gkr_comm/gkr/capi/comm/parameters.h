@@ -18,5 +18,6 @@
 #define PARAM_RETRY_BACKOFF_MULTIPLIER                  "retry/backoff-multiplier"
 #define PARAM_RETRY_JITTER_PERCENT                      "retry/jitter-percent"
 
+#define PARAM_WEB_SOCKET_PROVIDER                       "web-socket/provider"
 #define PARAM_WEB_SOCKET_PING_TIMEOUT_MS                "web-socket/ping-timeout-ms"
 #define PARAM_WEB_SOCKET_HANGUP_TIMEOUT_MS              "web-socket/hangup-timeout-ms"

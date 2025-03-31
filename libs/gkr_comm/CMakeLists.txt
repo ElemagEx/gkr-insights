@@ -11,8 +11,8 @@ target_sources(
     INTERFACE
     "gkr/capi/comm/api.h"
     "gkr/capi/comm/names.h"
-    "gkr/capi/comm/params.h"
     "gkr/capi/comm/registry.h"
+    "gkr/capi/comm/parameters.h"
 )
 target_sources(
     gkr_comm
