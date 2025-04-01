@@ -121,7 +121,11 @@ protocol* context::find_protocol(const char* name)
 {
     Check_Arg_NotNull(name);
 
-    for(std::size_t index = 0; index < m_protocols.size(); ++index)
+    std::size_t count = m_protocols.size();
+
+    if(count-- == 1) return nullptr;
+
+    for(std::size_t index = 0; index < count; ++index)
     {
         protocol* p = static_cast<protocol*>(m_protocols[index].user);
 

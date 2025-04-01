@@ -190,6 +190,8 @@ int client_protocol::client_callback(struct lws* wsi, enum lws_callback_reasons 
 
     const struct lws_protocols* proto = lws_get_protocol(wsi);
 
+    if(proto == nullptr) return 0;
+
     switch(reason)
     {
         case LWS_CALLBACK_PROTOCOL_INIT:

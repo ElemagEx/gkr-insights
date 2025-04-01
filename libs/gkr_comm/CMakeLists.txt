@@ -10,9 +10,8 @@ target_sources(
     gkr_comm
     INTERFACE
     "gkr/capi/comm/api.h"
-    "gkr/capi/comm/names.h"
     "gkr/capi/comm/registry.h"
-    "gkr/capi/comm/parameters.h"
+    "gkr/capi/comm/constants.h"
 )
 target_sources(
     gkr_comm
@@ -23,8 +22,7 @@ target_sources(
     "gkr/comm/provider.hpp"
     "gkr/comm/service.hpp"
     "gkr/comm/bridge.hpp"
-    "gkr/comm/params.hpp"
-    "gkr/comm/names.hpp"
+    "gkr/comm/constants.hpp"
 )
 target_sources(
     gkr_comm

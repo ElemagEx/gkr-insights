@@ -3,7 +3,7 @@
 #include <gkr/comm/providers/lws_client.hpp>
 #include <gkr/comm/providers/lws_log_pipe.hpp>
 
-#include <gkr/comm/names.hpp>
+#include <gkr/comm/constants.hpp>
 #include <gkr/comm/bridge.hpp>
 
 #include <gkr/diagnostics.hpp>
@@ -44,7 +44,7 @@ std::shared_ptr<bridge> client::create_bridge(const char* service_name, end_poin
 
     service* s = nullptr;
 
-    if(!std::strcmp(service_name, GKR_COMM_SERVICE_LOG_CONSUMER))
+    if(!std::strcmp(service_name, COMM_SERVICE_NAME_LOG_CONSUMER))
     {
         protocol* p = find_protocol(log_pipe::NAME);
 
