@@ -10,6 +10,11 @@ target_link_libraries(gkr_client_comm PRIVATE websockets_shared)
 
 target_sources(
     gkr_client_comm
+    INTERFACE
+    "gkr/capi/comm/web_socket_log_consumer.h"
+)
+target_sources(
+    gkr_client_comm
     PUBLIC
     "gkr/comm/client_registrator.hpp"
     "gkr/comm/web_socket_log_consumer.hpp"
