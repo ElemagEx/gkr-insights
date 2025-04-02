@@ -27,13 +27,13 @@ public:
 
 public:
     GKR_CLIENT_COMM_API web_socket_log_consumer(
-        params& parameters,
+        const params& parameters,
         std::size_t root = 0
         );
     GKR_CLIENT_COMM_API web_socket_log_consumer(
         const char* url,
         const char* provider_name = nullptr,
-        params* parameters = nullptr,
+        const params* parameters = nullptr,
         std::size_t root = 0
         );
     GKR_CLIENT_COMM_API virtual ~web_socket_log_consumer() override;
@@ -55,9 +55,12 @@ protected:
     virtual void on_data_received() override;
 
 private:
+    void configure_bridge();
+
+private:
     std::shared_ptr<bridge> m_bridge;
     url                     m_url;
-    params*                 m_params = nullptr;
+    const params*           m_params = nullptr;
     std::size_t             m_root   = 0;
 };
 

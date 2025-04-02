@@ -12,11 +12,13 @@ target_sources(
     gkr_server_comm
     PUBLIC
     "gkr/comm/server_registrator.hpp"
+    "gkr/comm/log_receiver.hpp"
 )
 target_sources(
     gkr_server_comm
     PRIVATE
     "gkr/comm/server_registrator.cpp"
+    "gkr/comm/log_receiver.cpp"
 )
 target_sources(
     gkr_server_comm

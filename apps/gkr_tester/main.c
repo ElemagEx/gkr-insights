@@ -28,7 +28,7 @@ void load_config()
 
     gkr_params_set_integer_value(params, COMM_PARAM_BRIDGE_SEND_QUEUE_INIT_ELEMENT_COUNT, 50  , root, false);
     gkr_params_set_integer_value(params, COMM_PARAM_BRIDGE_SEND_QUEUE_INIT_ELEMENT_SIZE , 1024, root, false);
-    gkr_params_set_double_value (params, COMM_PARAM_BRIDGE_SEND_QUEUE_RESERVE_PERCENTAGE, 0.2f, root, false);
+    gkr_params_set_double_value (params, COMM_PARAM_BRIDGE_SEND_QUEUE_RESERVE_FACTOR    , 1.2f, root, false);
 
 }
 void save_config()
@@ -53,12 +53,12 @@ int init(int argc, const char* argv[])
     gkr_comm_providers_registry_init(1);
     gkr_comm_client_register_provider(NULL);
 
-    gkr_comm_add_web_socket_log_consumer_ex(
+    gkr_comm_add_web_socket_log_consumer/*_ex*/(
         NULL,
         NULL,
         NULL,
-        "wss://localhost:9301/binary/v0",
-        NULL,
+//      "wss://localhost:9301/binary/v0",
+//      NULL,
         params,
         gkr_params_find_node(params, "ws-log"));
 
@@ -67,7 +67,7 @@ int init(int argc, const char* argv[])
     return 1;
 }
 
-void done()
+int done()
 {
     LOGV("Tester stopping...");
 
@@ -80,6 +80,7 @@ void done()
     gkr_net_lib_shutdown();
 
     save_config();
+    return 0;
 }
 
 int main(int argc, const char** argv)
@@ -96,5 +97,5 @@ int main(int argc, const char** argv)
 
         if(*buf == 0) break;
     }
-    done();
+    return done();
 }

@@ -14,13 +14,13 @@ int gkr_comm_add_web_socket_log_consumer(
     void* channel,
     void* param,
     const struct gkr_comm_web_socket_log_consumer_callbacks* callbacks,
-    struct gkr_params* parameters,
+    const struct gkr_params* parameters,
     size_t root
     )
 {
-    Check_Arg_NotNull(parameters);
+    Check_Arg_NotNull(parameters, -1);
 
-    gkr::params& params = *reinterpret_cast<gkr::params*>(parameters);
+    const gkr::params& params = *reinterpret_cast<const gkr::params*>(parameters);
 
     const struct gkr_log_consumer_opt_callbacks* opt_callbacks = (callbacks == nullptr) ? nullptr : &callbacks->opt_callbacks;
 
@@ -35,13 +35,13 @@ int gkr_comm_add_web_socket_log_consumer_ex(
     const struct gkr_comm_web_socket_log_consumer_callbacks* callbacks,
     const char* url,
     const char* provider_name,
-    struct gkr_params* parameters,
+    const struct gkr_params* parameters,
     size_t root
     )
 {
-    Check_Arg_NotNull(url);
+    Check_Arg_NotNull(url, -1);
 
-    gkr::params* params = reinterpret_cast<gkr::params*>(parameters);
+    const gkr::params* params = reinterpret_cast<const gkr::params*>(parameters);
 
     const struct gkr_log_consumer_opt_callbacks* opt_callbacks = (callbacks == nullptr) ? nullptr : &callbacks->opt_callbacks;
 
@@ -57,34 +57,38 @@ namespace comm
 {
 
 web_socket_log_consumer::web_socket_log_consumer(
-    params& parameters,
+    const params& parameters,
     std::size_t root
     )
     : m_params(&parameters)
     , m_root  (root)
 {
-    const char* provider_name = m_params->get_value(COMM_PARAM_WEB_SOCKET_PROVIDER, m_root, nullptr);
+    const char* provider_name = m_params->get_value(COMM_PARAM_LOG_UPSTREAM_PROVIDER, m_root, nullptr);
 
     provider* p = registry::find_provider(provider_name);
 
     Check_ValidState(p, );
 
-    m_bridge = p->create_bridge(COMM_SERVICE_NAME_LOG_CONSUMER, this);
+    m_bridge = p->create_bridge(COMM_SERVICE_NAME_LOG_UPSTREAM_CLIENT, this);
 
     Check_ValidState(m_bridge, );
 
-    auto& parts = m_url.modify_parts();
-    parts.scheme = m_params->get_value(COMM_PARAM_URL_SCHEME, m_root, "wss");
-    parts.host   = m_params->get_value(COMM_PARAM_URL_HOST  , m_root, "localhost");
-    parts.port   = m_params->get_value(COMM_PARAM_URL_PORT  , m_root, COMM_PORT_WEB_SOCKET_LOG_UPSTREAM);
-    parts.path   = m_params->get_value(COMM_PARAM_URL_PATH  , m_root, DEFAULT_PATH);
+    url_parts parts {};
+    {
+        auto lock = m_params->get_reader_lock();
+
+        parts.scheme = m_params->get_value(COMM_PARAM_URL_SCHEME, m_root, "wss");
+        parts.host   = m_params->get_value(COMM_PARAM_URL_HOST  , m_root, "localhost");
+        parts.port   = m_params->get_value(COMM_PARAM_URL_PORT  , m_root, COMM_PORT_WEB_SOCKET_LOG_UPSTREAM);
+        parts.path   = m_params->get_value(COMM_PARAM_URL_PATH  , m_root, DEFAULT_PATH);
+    }
 
     //gkr_url_validate
 }
 web_socket_log_consumer::web_socket_log_consumer(
     const char* url,
     const char* provider_name,
-    params* parameters,
+    const params* parameters,
     std::size_t root
     )
     : m_params(parameters)
@@ -96,7 +100,7 @@ web_socket_log_consumer::web_socket_log_consumer(
 
     Check_ValidState(p, );
 
-    m_bridge = p->create_bridge(COMM_SERVICE_NAME_LOG_CONSUMER, this);
+    m_bridge = p->create_bridge(COMM_SERVICE_NAME_LOG_UPSTREAM_CLIENT, this);
 
     Check_ValidState(m_bridge, );
 
@@ -113,6 +117,8 @@ web_socket_log_consumer::~web_socket_log_consumer()
 bool web_socket_log_consumer::init_logging()
 {
     if(!m_bridge) return false;
+
+    configure_bridge();
 
     m_bridge->connect();
 
@@ -166,6 +172,24 @@ void web_socket_log_consumer::on_disconnect()
 
 void web_socket_log_consumer::on_data_received()
 {
+}
+
+void web_socket_log_consumer::configure_bridge()
+{
+    std::size_t init_count = gkr_log_get_max_queue_entries();
+    std::size_t init_size  = gkr_log_get_max_message_chars();
+    float       res_factor = 1.5f;
+
+    if(m_params != nullptr)
+    {
+        auto lock = m_params->get_reader_lock();
+
+        init_count = m_params->get_value(COMM_PARAM_BRIDGE_SEND_QUEUE_INIT_ELEMENT_COUNT, m_root, init_count);
+        init_size  = m_params->get_value(COMM_PARAM_BRIDGE_SEND_QUEUE_INIT_ELEMENT_SIZE , m_root, init_size );
+        res_factor = m_params->get_value(COMM_PARAM_BRIDGE_SEND_QUEUE_RESERVE_FACTOR    , m_root, res_factor);
+    }
+
+    m_bridge->configure_outgoing_queue(init_count, init_size, res_factor);
 }
 
 }

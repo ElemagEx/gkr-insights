@@ -19,7 +19,7 @@ GKR_CLIENT_COMM_API int gkr_comm_add_web_socket_log_consumer(
     void* channel,
     void* param,
     const struct gkr_comm_web_socket_log_consumer_callbacks* callbacks,
-    struct gkr_params* parameters,
+    const struct gkr_params* parameters,
     size_t root
     );
 GKR_CLIENT_COMM_API int gkr_comm_add_web_socket_log_consumer_ex(
@@ -28,7 +28,7 @@ GKR_CLIENT_COMM_API int gkr_comm_add_web_socket_log_consumer_ex(
     const struct gkr_comm_web_socket_log_consumer_callbacks* callbacks,
     const char* url,
     const char* provider_name,
-    struct gkr_params* parameters,
+    const struct gkr_params* parameters,
     size_t root
     );
 

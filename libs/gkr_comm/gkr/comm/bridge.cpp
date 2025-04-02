@@ -27,6 +27,26 @@ bridge::~bridge()
 {
 }
 
+void bridge::configure_outgoing_queue(std::size_t init_count, std::size_t init_size, float reserve_factor)
+{
+    if(reserve_factor < MINIMUM_RESERVE_FACTOR) reserve_factor = MINIMUM_RESERVE_FACTOR;
+    if(reserve_factor > MAXIMUM_RESERVE_FACTOR) reserve_factor = MAXIMUM_RESERVE_FACTOR;
+    m_outgoing_factor = reserve_factor;
+
+    m_outgoing_queue.reset(init_count, init_size);
+    m_outgoing_queue.threading.set_current_thread_as_exclusive_producer();
+}
+
+void bridge::configure_incoming_queue(std::size_t init_count, std::size_t init_size, float reserve_factor)
+{
+    if(reserve_factor < MINIMUM_RESERVE_FACTOR) reserve_factor = MINIMUM_RESERVE_FACTOR;
+    if(reserve_factor > MAXIMUM_RESERVE_FACTOR) reserve_factor = MAXIMUM_RESERVE_FACTOR;
+    m_outgoing_factor = reserve_factor;
+ 
+    m_outgoing_queue.reset(init_count, init_size);
+    m_outgoing_queue.threading.set_current_thread_as_exclusive_consumer();
+}
+
 void bridge::connect()
 {
 }
@@ -76,7 +96,13 @@ void* bridge::acquire_outgoing_buffer(std::size_t& capacity)
         }
         if(reserve)
         {
-            m_outgoing_queue.reserve(m_outgoing_queue.capacity() * 2); //TODO:user param for reserve percent grow
+            const
+            std::size_t old_capacity = m_outgoing_queue.capacity();
+            std::size_t new_capacity = std::size_t(float(old_capacity) * m_outgoing_factor);
+
+            if(new_capacity <= old_capacity) new_capacity = (new_capacity + 1);
+
+            m_outgoing_queue.reserve(new_capacity);
         }
         m_outgoing_header = m_outgoing_queue.try_acquire_producer_element_ownership<header_t>();
 
@@ -175,7 +201,13 @@ void* bridge::acquire_incoming_buffer(std::size_t& capacity)
         }
         if(reserve)
         {
-            m_incoming_queue.reserve(m_incoming_queue.capacity() * 2); //TODO:user param for reserve percent grow
+            const
+            std::size_t old_capacity = m_incoming_queue.capacity();
+            std::size_t new_capacity = std::size_t(float(old_capacity) * m_incoming_factor);
+
+            if(new_capacity <= old_capacity) new_capacity = (new_capacity + 1);
+
+            m_incoming_queue.reserve(new_capacity);
         }
         m_incoming_header = m_incoming_queue.try_acquire_producer_element_ownership<header_t>();
 

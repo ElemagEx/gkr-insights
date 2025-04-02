@@ -6,6 +6,8 @@
 
 namespace gkr
 {
+class params;
+
 namespace comm
 {
 
@@ -13,8 +15,11 @@ class end_point;
 class service;
 class bridge
 {
-    bridge           (const bridge&) noexcept = delete;
-    bridge& operator=(const bridge&) noexcept = delete;
+    bridge(      bridge&&) noexcept = delete;
+    bridge(const bridge& ) noexcept = delete;
+
+    bridge& operator=(      bridge&&) noexcept = delete;
+    bridge& operator=(const bridge& ) noexcept = delete;
 
     bridge() noexcept = delete;
 
@@ -32,31 +37,8 @@ class bridge
 public:
     using queue_t = lockfree_queue<void, false, true>;
 
-    bridge(bridge&& other) noexcept(
-        std::is_nothrow_move_constructible<queue_t>::value
-        )
-        : m_outgoing_queue (std::move    (other.m_outgoing_queue))
-        , m_incoming_queue (std::move    (other.m_incoming_queue))
-        , m_outgoing_header(std::exchange(other.m_outgoing_header, nullptr))
-        , m_incoming_header(std::exchange(other.m_incoming_header, nullptr))
-        , m_end_point      (std::exchange(other.m_end_point      , nullptr))
-        , m_service        (std::exchange(other.m_service        , nullptr))
-        , m_connected      (std::exchange(other.m_connected      , false  ))
-    {
-    }
-    bridge& operator=(bridge&& other) noexcept(
-        std::is_nothrow_move_constructible<queue_t>::value
-        )
-    {
-        m_outgoing_queue  = std::move    (other.m_outgoing_queue);
-        m_incoming_queue  = std::move    (other.m_incoming_queue);
-        m_outgoing_header = std::exchange(other.m_outgoing_header, nullptr);
-        m_incoming_header = std::exchange(other.m_incoming_header, nullptr);
-        m_end_point       = std::exchange(other.m_end_point     , nullptr);
-        m_service         = std::exchange(other.m_service       , nullptr);
-        m_connected       = std::exchange(other.m_connected     , false  );
-        return *this;
-    }
+    static constexpr float MINIMUM_RESERVE_FACTOR = 1.01f;
+    static constexpr float MAXIMUM_RESERVE_FACTOR = 2.00f;
 
 private:
     queue_t    m_outgoing_queue;
@@ -65,8 +47,9 @@ private:
     header_t*  m_incoming_header = nullptr;
     end_point* m_end_point       = nullptr;
     service*   m_service         = nullptr;
+    float      m_outgoing_factor = 0.5f;
+    float      m_incoming_factor = 0.5f;
     bool       m_connected       = false;
-
 
 public:
     GKR_COMM_API  bridge(end_point* ep, service* s) noexcept;
@@ -76,6 +59,9 @@ public:
     //
     // called from end-point
     //
+    GKR_COMM_API void configure_outgoing_queue(std::size_t init_count, std::size_t init_size, float reserve_factor);
+    GKR_COMM_API void configure_incoming_queue(std::size_t init_count, std::size_t init_size, float reserve_factor);
+
     GKR_COMM_API void connect();
     GKR_COMM_API void listen();
     GKR_COMM_API void close();

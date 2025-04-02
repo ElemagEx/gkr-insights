@@ -44,7 +44,7 @@ std::shared_ptr<bridge> client::create_bridge(const char* service_name, end_poin
 
     service* s = nullptr;
 
-    if(!std::strcmp(service_name, COMM_SERVICE_NAME_LOG_CONSUMER))
+    if(!std::strcmp(service_name, COMM_SERVICE_NAME_LOG_UPSTREAM_CLIENT))
     {
         protocol* p = find_protocol(log_pipe::NAME);
 
