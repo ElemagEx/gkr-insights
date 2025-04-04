@@ -31,11 +31,14 @@ class context : public provider
     std::thread         m_thread;
     bool                m_running   = false;
 
+public:
+    static context* create();
+
 protected:
-    GKR_COMM_API context() noexcept;
+    context() noexcept;
 
 public:
-    GKR_COMM_API virtual ~context() noexcept;
+    virtual ~context() noexcept;
 
 public:
     bool is_valid() const
@@ -53,24 +56,26 @@ private:
     void thread_done();
 
 protected:
-    virtual void release() = 0;
+    virtual void release() override;
 
 public:
-    GKR_COMM_API virtual const char* get_name() override;
+    virtual const char* get_name() override;
 
 protected:
-    GKR_COMM_API virtual bool start() override;
-    GKR_COMM_API virtual void stop () override;
+    virtual bool start() override;
+    virtual void stop () override;
 
-protected:
-    GKR_COMM_API protocol* find_protocol(const char* name);
+    virtual std::shared_ptr<bridge> create_bridge(const char* service_name, const char* transport, end_point* ep) override;
 
-    GKR_COMM_API void add_protocol(protocol* p);
+private:
+    protocol* find_protocol(const char* name);
 
-protected:
-    virtual void get_context_info(unsigned long long& options) = 0;
+    void add_protocol(protocol* p);
 
-    virtual bool get_server_info(int& port, const struct lws_http_mount*& mount) = 0;
+private:
+    void get_context_info(unsigned long long& options);
+
+    bool get_server_info(int& port, const struct lws_http_mount*& mount);
 };
 
 }

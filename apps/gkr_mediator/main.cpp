@@ -48,7 +48,7 @@ bool init(int argc, int argv)
 
     LOGV("Mediator starting...");
 
-    s_registry.server_register_provider(nullptr);
+    s_registry.register_provider(nullptr);
 
     s_log_receiver.run();
 

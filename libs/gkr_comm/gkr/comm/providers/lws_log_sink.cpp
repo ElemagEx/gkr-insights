@@ -21,7 +21,7 @@ log_sink::~log_sink()
 
 const char* log_sink::get_name()
 {
-    return "gkr-log-sink";
+    return NAME;
 }
 
 unsigned log_sink::get_info(std::size_t& ps_size, std::size_t& rx_size, std::size_t& tx_size)
@@ -61,6 +61,36 @@ void log_sink::on_connection_writeable()
 }
 
 void log_sink::on_connection_received_data(const void* data, std::size_t size)
+{
+}
+
+bool log_sink::can_connect()
+{
+    return false;
+}
+
+bool log_sink::can_listen()
+{
+    return true;
+}
+
+void log_sink::connect()
+{
+}
+
+void log_sink::listen()
+{
+}
+
+void log_sink::close()
+{
+}
+
+void log_sink::on_data_sent()
+{
+}
+
+void log_sink::on_error()
 {
 }
 

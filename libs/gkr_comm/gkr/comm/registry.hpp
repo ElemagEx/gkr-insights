@@ -38,17 +38,10 @@ public:
     }
 
 public:
-    provider* client_register_provider(const char* name)
+    provider* register_provider(const char* name)
     {
-        return reinterpret_cast<provider*>(gkr_comm_client_register_provider(name));
+        return reinterpret_cast<provider*>(gkr_comm_register_provider(name));
     }
-    provider* server_register_provider(const char* name)
-    {
-        return reinterpret_cast<provider*>(gkr_comm_server_register_provider(name));
-    }
-
-public:
-    GKR_COMM_API static provider* register_provider(provider* p);
 
 private:
     registry           (const registry&) noexcept = delete;

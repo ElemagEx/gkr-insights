@@ -2,6 +2,11 @@
 
 #include <gkr/comm/providers/lws_context.hpp>
 #include <gkr/comm/providers/lws_protocol.hpp>
+#include <gkr/comm/providers/lws_log_pipe.hpp>
+#include <gkr/comm/providers/lws_log_sink.hpp>
+
+#include <gkr/comm/constants.hpp>
+#include <gkr/comm/bridge.hpp>
 
 #include <gkr/diagnostics.hpp>
 #include <gkr/log/defs/generic_cdefs.hpp>
@@ -19,6 +24,11 @@ namespace providers
 {
 namespace libwebsocket
 {
+
+context* context::create()
+{
+    return new context();
+}
 
 context::context() noexcept
 {
@@ -75,6 +85,11 @@ void context::thread_done()
     }
 }
 
+void context::release()
+{
+    delete this;
+}
+
 const char* context::get_name()
 {
     return "libwebsocket";
@@ -117,6 +132,47 @@ void context::stop()
     m_thread.join();
 }
 
+std::shared_ptr<bridge> context::create_bridge(const char* service_name, const char* transport, end_point* ep)
+{
+    Check_Arg_NotNull(service_name, {});
+    Check_Arg_NotNull(ep          , {});
+
+    service* s = nullptr;
+
+    if(*service_name == 0)
+    {
+    }
+    else if(!std::strcmp(service_name, COMM_SERVICE_NAME_LOG_UPSTREAM_CLIENT))
+    {
+        protocol* p = find_protocol(log_pipe::NAME);
+
+        if(p == nullptr)
+        {
+            p = new log_pipe();
+            add_protocol(p);
+            s = p;
+        }
+    }
+    else if(!std::strcmp(service_name, COMM_SERVICE_NAME_LOG_UPSTREAM_SERVER))
+    {
+        protocol* p = find_protocol(log_sink::NAME);
+
+        if(p == nullptr)
+        {
+            p = new log_sink();
+            add_protocol(p);
+            s = p;
+        }
+    }
+    
+    if(s == nullptr)
+    {
+        Check_Recovery("Unknown/unsupported service name");
+        return nullptr;
+    }
+    return std::make_shared<bridge>(ep, s);
+}
+
 protocol* context::find_protocol(const char* name)
 {
     Check_Arg_NotNull(name);
@@ -152,6 +208,63 @@ void context::add_protocol(protocol* p)
         proto.tx_packet_size);
 
     m_protocols.push_back(LWS_PROTOCOL_LIST_TERM);
+}
+
+void context::get_context_info(unsigned long long& options)
+{
+    for(std::size_t index = 0; index < m_protocols.size() - 1; ++index)
+    {
+        if(static_cast<protocol*>(m_protocols[index].user)->can_connect())
+        {
+            options |= LWS_SERVER_OPTION_DO_SSL_GLOBAL_INIT;
+        }
+        if(static_cast<protocol*>(m_protocols[index].user)->can_listen())
+        {
+            options = LWS_SERVER_OPTION_HTTP_HEADERS_SECURITY_BEST_PRACTICES_ENFORCE;
+        }
+    }
+}
+
+bool context::get_server_info(int& port, const struct lws_http_mount*& mount)
+{
+    //SERVER
+    static const struct lws_http_mount http_mount
+    {
+        /* .mount_next */            nullptr,          /* linked-list "next" */
+        /* .mountpoint */            "/",              /* mountpoint URL */
+        /* .origin */                "./mount-origin", /* serve from dir */
+        /* .def */                   "index.html",     /* default filename */
+        /* .protocol */              nullptr,
+        /* .cgienv */                nullptr,
+        /* .extra_mimetypes */       nullptr,
+        /* .interpret */             nullptr,
+        /* .cgi_timeout */           0,
+        /* .cache_max_age */         0,
+        /* .auth_mask */             0,
+        /* .cache_reusable */        0,
+        /* .cache_revalidate */      0,
+        /* .cache_intermediaries */  0,
+        /* .origin_protocol */       LWSMPRO_FILE,     /* files in a dir */
+        /* .mountpoint_len */        1,                /* char count */
+        /* .basic_auth_login_file */ nullptr,
+    };
+    Assert_Check(m_protocols.size() == 2);//???
+    for(std::size_t index = 0; index < m_protocols.size() - 1; ++index)
+    {
+        if(static_cast<protocol*>(m_protocols[index].user)->can_connect())
+        {
+            //???
+            port  = CONTEXT_PORT_NO_LISTEN;
+            mount = nullptr;
+        }
+        if(static_cast<protocol*>(m_protocols[index].user)->can_listen())
+        {
+            //???
+            port  = 7681;
+            mount = &http_mount;
+        }
+    }
+    return true;
 }
 
 }

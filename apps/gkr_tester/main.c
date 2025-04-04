@@ -56,7 +56,7 @@ int init(int argc, const char* argv[])
     LOGV("Tester starting...");
 
     gkr_comm_providers_registry_init(1);
-    gkr_comm_client_register_provider(NULL);
+    gkr_comm_register_provider(NULL);
 
     gkr_comm_add_upstream_log_consumer/*_ex*/(
         NULL,

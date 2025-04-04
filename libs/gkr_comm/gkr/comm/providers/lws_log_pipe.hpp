@@ -42,6 +42,10 @@ protected:
     virtual void on_connection_received_data(const void* data, std::size_t size) override;
 
 protected:
+    virtual bool can_connect() override;
+    virtual bool can_listen() override;
+
+protected:
     virtual void connect() override;
     virtual void listen() override;
     virtual void close() override;

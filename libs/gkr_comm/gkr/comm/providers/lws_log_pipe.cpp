@@ -68,6 +68,16 @@ void log_pipe::on_connection_received_data(const void* data, std::size_t size)
 {
 }
 
+bool log_pipe::can_connect()
+{
+    return true;
+}
+
+bool log_pipe::can_listen()
+{
+    return false;
+}
+
 void log_pipe::connect()
 {
 }

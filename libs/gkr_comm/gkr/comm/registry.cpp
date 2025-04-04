@@ -1,6 +1,7 @@
 #include <gkr/defs.hpp>
 
 #include <gkr/comm/registry.hpp>
+#include <gkr/comm/providers/lws_context.hpp>
 
 #include <gkr/diagnostics.hpp>
 
@@ -15,26 +16,25 @@ provider::~provider()
 {
 }
 
-class providers
+class storage
 {
-    providers           (const providers&) noexcept = delete;
-    providers& operator=(const providers&) noexcept = delete;
+    storage           (const storage&) noexcept = delete;
+    storage& operator=(const storage&) noexcept = delete;
 
-    providers           (providers&&) noexcept = delete;
-    providers& operator=(providers&&) noexcept = delete;
+    storage           (storage&&) noexcept = delete;
+    storage& operator=(storage&&) noexcept = delete;
 
 private:
     std::vector<provider*> m_providers;
 
-    bool m_initialized  = false;
-    bool m_clients_only = false;
-    bool m_started      = false;
+    bool m_initialized = false;
+    bool m_started     = false;
 
 public:
-    providers() noexcept
+    storage() noexcept
     {
     }
-    ~providers()
+    ~storage()
     {
         done();
     }
@@ -48,13 +48,11 @@ public:
     {
         m_providers.reserve(4);
 
-        m_clients_only = clients_only;
-        m_initialized  = true;
+        m_initialized = true;
     }
     void done()
     {
-        m_initialized  = false;
-        m_clients_only = false;
+        m_initialized = false;
 
         if(m_started)
         {
@@ -151,10 +149,10 @@ public:
 
 namespace
 {
-gkr::comm::providers& get_providers()
+gkr::comm::storage& get_storage()
 {
-    static gkr::comm::providers s_providers;
-    return s_providers;
+    static gkr::comm::storage s_storage;
+    return s_storage;
 }
 }
 
@@ -163,57 +161,57 @@ extern "C"
 
 int gkr_comm_providers_registry_init(int clients_only)
 {
-    Check_ValidState(!get_providers().is_initialized(), gkr_b2i(false));
+    Check_ValidState(!get_storage().is_initialized(), gkr_b2i(false));
 
-    get_providers().init(clients_only);
+    get_storage().init(clients_only);
     return gkr_b2i(true);
 }
 
 int gkr_comm_providers_registry_done()
 {
-    if(!get_providers().is_initialized()) return gkr_b2i(false);
+    if(!get_storage().is_initialized()) return gkr_b2i(false);
 
-    get_providers().done();
+    get_storage().done();
     return gkr_b2i(true);
 }
 
 int gkr_comm_providers_count_in_registry()
 {
-    Check_ValidState(get_providers().is_initialized(), 0);
+    Check_ValidState(get_storage().is_initialized(), 0);
 
-    return int(get_providers().count());
+    return int(get_storage().count());
 }
 
 struct gkr_comm_provider* gkr_comm_providers_get_from_registry(int index)
 {
-    Check_Arg_IsValid(std::size_t(index) <= get_providers().count(), nullptr);
+    Check_Arg_IsValid(std::size_t(index) <= get_storage().count(), nullptr);
 
-    Check_ValidState(get_providers().is_initialized(), nullptr);
+    Check_ValidState(get_storage().is_initialized(), nullptr);
 
-    return reinterpret_cast<struct gkr_comm_provider*>(get_providers().get(std::size_t(index)));
+    return reinterpret_cast<struct gkr_comm_provider*>(get_storage().get(std::size_t(index)));
 }
 
 struct gkr_comm_provider* gkr_comm_providers_find_in_registry(const char* name)
 {
-    Check_ValidState(get_providers().is_initialized(), nullptr);
+    Check_ValidState(get_storage().is_initialized(), nullptr);
 
-    return reinterpret_cast<struct gkr_comm_provider*>(get_providers().find(name));
+    return reinterpret_cast<struct gkr_comm_provider*>(get_storage().find(name));
 }
 
 int gkr_comm_providers_start_all()
 {
-    Check_ValidState( get_providers().is_initialized(), gkr_b2i(false));
-    Check_ValidState(!get_providers().is_started    (), gkr_b2i(false));
-    Check_ValidState(!get_providers().is_empty      (), gkr_b2i(false));
+    Check_ValidState( get_storage().is_initialized(), gkr_b2i(false));
+    Check_ValidState(!get_storage().is_started    (), gkr_b2i(false));
+    Check_ValidState(!get_storage().is_empty      (), gkr_b2i(false));
 
-    return gkr_b2i(get_providers().start());
+    return gkr_b2i(get_storage().start());
 }
 
 int gkr_comm_providers_stop_all()
 {
-    Check_ValidState(get_providers().is_initialized(), gkr_b2i(false));
+    Check_ValidState(get_storage().is_initialized(), gkr_b2i(false));
 
-    return gkr_b2i(get_providers().stop());
+    return gkr_b2i(get_storage().stop());
 }
 
 const char* gkr_comm_provider_get_name(struct gkr_comm_provider* provider)
@@ -221,18 +219,20 @@ const char* gkr_comm_provider_get_name(struct gkr_comm_provider* provider)
     return reinterpret_cast<gkr::comm::provider*>(provider)->get_name();
 }
 
+struct gkr_comm_provider* gkr_comm_register_provider(const char* name)
+{
+    Check_ValidState(get_storage().is_initialized(), nullptr);
+
+    gkr::comm::provider* provider = nullptr;
+
+    if((name == nullptr) || !std::strcmp(name, "libwebsocket"))
+    {
+        provider = gkr::comm::providers::libwebsocket::context::create();
+    }
+
+    if(provider == nullptr) return nullptr;
+
+    return reinterpret_cast<struct gkr_comm_provider*>(get_storage().add(provider));
 }
 
-namespace gkr
-{
-namespace comm
-{
-provider* registry::register_provider(provider* p)
-{
-    Check_ValidState(get_providers().is_initialized(), gkr_b2i(false));
-
-    return get_providers().add(p);
-}
-
-}
 }
