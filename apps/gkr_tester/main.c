@@ -26,9 +26,14 @@ void load_config()
 
     root = gkr_params_add_object(params, "ws-log", 0);
 
-    gkr_params_set_integer_value(params, COMM_PARAM_BRIDGE_SEND_QUEUE_INIT_ELEMENT_COUNT, 50  , root, false);
-    gkr_params_set_integer_value(params, COMM_PARAM_BRIDGE_SEND_QUEUE_INIT_ELEMENT_SIZE , 1024, root, false);
-    gkr_params_set_double_value (params, COMM_PARAM_BRIDGE_SEND_QUEUE_RESERVE_FACTOR    , 1.2f, root, false);
+    gkr_params_set_value_string (params, COMM_PARAM_PROTOCOL_TRANSPORT    , COMM_TRANSPORT_WEB_SOCKET_PLAIN, root, false);
+    gkr_params_set_value_string (params, COMM_PARAM_PROTOCOL_FORMAT       , "binary", root, false);
+    gkr_params_set_value_integer(params, COMM_PARAM_PROTOCOL_VERSION      , 0, root, false);
+    gkr_params_set_value_string (params, COMM_PARAM_PROTOCOL_REMOTE_SERVER, "192.168.0.110", root, false);
+
+    gkr_params_set_value_integer(params, COMM_PARAM_BRIDGE_SEND_QUEUE_INIT_ELEMENT_COUNT, 50  , root, false);
+    gkr_params_set_value_integer(params, COMM_PARAM_BRIDGE_SEND_QUEUE_INIT_ELEMENT_SIZE , 1024, root, false);
+    gkr_params_set_value_double (params, COMM_PARAM_BRIDGE_SEND_QUEUE_RESERVE_FACTOR    , 1.2f, root, false);
 
 }
 void save_config()
@@ -53,12 +58,13 @@ int init(int argc, const char* argv[])
     gkr_comm_providers_registry_init(1);
     gkr_comm_client_register_provider(NULL);
 
-    gkr_comm_add_web_socket_log_consumer/*_ex*/(
+    gkr_comm_add_upstream_log_consumer/*_ex*/(
         NULL,
         NULL,
         NULL,
-//      "wss://localhost:9301/binary/v0",
-//      NULL,
+//        "wss://localhost/binary/v0",
+//        NULL,
+//        NULL,
         params,
         gkr_params_find_node(params, "ws-log"));
 

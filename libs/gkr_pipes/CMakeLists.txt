@@ -17,13 +17,13 @@ target_sources(
     gkr_client_comm
     PUBLIC
     "gkr/comm/client_registrator.hpp"
-    "gkr/comm/web_socket_log_consumer.hpp"
+    "gkr/comm/upstream_log_consumer.hpp"
 )
 target_sources(
     gkr_client_comm
     PRIVATE
     "gkr/comm/client_registrator.cpp"
-    "gkr/comm/web_socket_log_consumer.cpp"
+    "gkr/comm/upstream_log_consumer.cpp"
 )
 target_sources(
     gkr_client_comm

@@ -86,7 +86,7 @@ public:
     {
         if(m_providers.empty()) return nullptr;
 
-        if(name == nullptr) return m_providers.front();
+        if((name == nullptr) || (*name == 0)) return m_providers.front();
 
         for(std::size_t index = 0; index < m_providers.size(); ++index)
         {

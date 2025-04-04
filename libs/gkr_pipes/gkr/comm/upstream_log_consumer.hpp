@@ -15,28 +15,40 @@ class params;
 namespace comm
 {
 
-class web_socket_log_consumer
+class upstream_log_consumer
     : public log::consumer
     , public end_point
 {
 public:
-    static constexpr const char* SUPPORTED_PATHS[] = {
-        "/binary/v0"
+    enum
+    {
+        STREAM_FORMAT_BINARY = 0x0,
+        STREAM_VERSION_0     = 0x0,
     };
-    static constexpr const char* DEFAULT_PATH = SUPPORTED_PATHS[0];
+    static constexpr const char* SUPPORTED_FORMATS [] = {"binary"};
+    static constexpr unsigned    FORMAT_MAX_VERSION[] = {0};
+
+    static_assert(std::size(SUPPORTED_FORMATS) == std::size(FORMAT_MAX_VERSION), "Must have same size");
 
 public:
-    GKR_CLIENT_COMM_API web_socket_log_consumer(
+    GKR_CLIENT_COMM_API upstream_log_consumer(
         const params& parameters,
         std::size_t root = 0
         );
-    GKR_CLIENT_COMM_API web_socket_log_consumer(
+    GKR_CLIENT_COMM_API upstream_log_consumer(
         const char* url,
+        const char* transport = nullptr,
         const char* provider_name = nullptr,
         const params* parameters = nullptr,
         std::size_t root = 0
         );
-    GKR_CLIENT_COMM_API virtual ~web_socket_log_consumer() override;
+    GKR_CLIENT_COMM_API virtual ~upstream_log_consumer() override;
+
+public:
+    bool is_successfully_configured() const noexcept
+    {
+        return bool(m_bridge);
+    }
 
 protected:
     virtual bool init_logging() override;
@@ -55,13 +67,17 @@ protected:
     virtual void on_data_received() override;
 
 private:
+    bool parse_path(const char* path);
+
     void configure_bridge();
 
 private:
     std::shared_ptr<bridge> m_bridge;
     url                     m_url;
-    const params*           m_params = nullptr;
-    std::size_t             m_root   = 0;
+    const params*           m_params  = nullptr;
+    std::size_t             m_root    = 0;
+    unsigned                m_format  = 0;
+    unsigned                m_version = 0;
 };
 
 }

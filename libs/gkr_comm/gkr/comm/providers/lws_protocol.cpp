@@ -154,7 +154,7 @@ bool client_protocol::connect(const char* url, const char* protocol)
 
     if(m_connect_url.is_valid()) return false;
 
-    m_connect_url.reset(url);
+    m_connect_url.decompose(url);
 
     if(!m_connect_url.is_valid()) return false;
 
@@ -167,7 +167,7 @@ bool client_protocol::connect(const char* url, const char* protocol)
     else if(!std::strcmp(m_connect_url.parts().scheme, "ws" )) {ssl_connection = 0; }
     else
     {
-        m_connect_url.reset();
+        m_connect_url.clear();
         return false;
     }
     info.context               = get_parent_context();

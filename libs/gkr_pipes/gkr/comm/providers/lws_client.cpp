@@ -37,7 +37,7 @@ void client::release()
     delete this;
 }
 
-std::shared_ptr<bridge> client::create_bridge(const char* service_name, end_point* ep)
+std::shared_ptr<bridge> client::create_bridge(const char* service_name, const char* transport, end_point* ep)
 {
     Check_Arg_NotNull(service_name, {});
     Check_Arg_NotNull(ep          , {});

@@ -24,7 +24,7 @@ protected:
     virtual void release() override;
 
 protected:
-    virtual std::shared_ptr<bridge> create_bridge(const char* service_name, end_point* ep) override;
+    virtual std::shared_ptr<bridge> create_bridge(const char* service_name, const char* transport, end_point* ep) override;
 
 protected:
     virtual void get_context_info(unsigned long long& options) override;
