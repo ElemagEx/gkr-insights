@@ -1,6 +1,6 @@
 #include <gkr/defs.hpp>
 
-#include <gkr/comm/upstream_log_consumer.hpp>
+#include <gkr/comm/log_upstream_log_consumer.hpp>
 #include <gkr/comm/constants.hpp>
 #include <gkr/comm/registry.hpp>
 #include <gkr/params.hpp>

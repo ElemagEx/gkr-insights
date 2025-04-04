@@ -17,28 +17,52 @@ target_sources(
     gkr_comm
     INTERFACE
     "gkr/comm/api.hpp"
-    "gkr/comm/registry.hpp"
     "gkr/comm/end_point.hpp"
+    "gkr/comm/constants.hpp"
     "gkr/comm/provider.hpp"
     "gkr/comm/service.hpp"
+    "gkr/comm/log_packet.hpp"
+    "gkr/comm/log_collector.hpp"
+)
+target_sources(
+    gkr_comm
+    INTERFACE
+    "gkr/comm/registry.hpp"
     "gkr/comm/bridge.hpp"
-    "gkr/comm/constants.hpp"
+    "gkr/comm/client_registrator.hpp"
+    "gkr/comm/server_registrator.hpp"
+    "gkr/comm/log_receiver.hpp"
+    "gkr/comm/app_console_log_collector.hpp"
+    "gkr/comm/log_upstream_log_consumer.hpp"
 )
 target_sources(
     gkr_comm
     PRIVATE
     "gkr/comm/registry.cpp"
     "gkr/comm/bridge.cpp"
+    "gkr/comm/client_registrator.cpp"
+    "gkr/comm/server_registrator.cpp"
+    "gkr/comm/log_receiver.cpp"
+    "gkr/comm/app_console_log_collector.cpp"
+    "gkr/comm/log_upstream_log_consumer.cpp"
 )
 target_sources(
     gkr_comm
     PUBLIC
     "gkr/comm/providers/lws_context.hpp"
+    "gkr/comm/providers/lws_client.hpp"
+    "gkr/comm/providers/lws_server.hpp"
     "gkr/comm/providers/lws_protocol.hpp"
+    "gkr/comm/providers/lws_log_pipe.hpp"
+    "gkr/comm/providers/lws_log_sink.hpp"
 )
 target_sources(
     gkr_comm
     PRIVATE
     "gkr/comm/providers/lws_context.cpp"
+    "gkr/comm/providers/lws_client.cpp"
+    "gkr/comm/providers/lws_server.cpp"
     "gkr/comm/providers/lws_protocol.cpp"
+    "gkr/comm/providers/lws_log_pipe.cpp"
+    "gkr/comm/providers/lws_log_sink.cpp"
 )

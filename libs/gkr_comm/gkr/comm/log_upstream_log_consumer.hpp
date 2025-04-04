@@ -1,6 +1,6 @@
 #pragma once
 
-#include <gkr/capi/comm/web_socket_log_consumer.h>
+#include <gkr/capi/comm/log_upstream_log_consumer.h>
 
 #include <gkr/log/consumer.hpp>
 
@@ -31,18 +31,18 @@ public:
     static_assert(std::size(SUPPORTED_FORMATS) == std::size(FORMAT_MAX_VERSION), "Must have same size");
 
 public:
-    GKR_CLIENT_COMM_API upstream_log_consumer(
+    GKR_COMM_API upstream_log_consumer(
         const params& parameters,
         std::size_t root = 0
         );
-    GKR_CLIENT_COMM_API upstream_log_consumer(
+    GKR_COMM_API upstream_log_consumer(
         const char* url,
         const char* transport = nullptr,
         const char* provider_name = nullptr,
         const params* parameters = nullptr,
         std::size_t root = 0
         );
-    GKR_CLIENT_COMM_API virtual ~upstream_log_consumer() override;
+    GKR_COMM_API virtual ~upstream_log_consumer() override;
 
 public:
     bool is_successfully_configured() const noexcept

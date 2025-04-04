@@ -10,7 +10,7 @@ struct log_packet_head;
 class log_collector
 {
 public:
-    GKR_SERVER_COMM_API virtual ~log_collector();
+    GKR_COMM_API virtual ~log_collector();
 
     virtual bool init_collecting() = 0;
     virtual void done_collecting() = 0;

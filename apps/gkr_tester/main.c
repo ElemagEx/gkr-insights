@@ -5,7 +5,7 @@
 #include <gkr/capi/net/lib.h>
 #include <gkr/capi/comm/registry.h>
 #include <gkr/capi/comm/constants.h>
-#include <gkr/capi/comm/web_socket_log_consumer.h>
+#include <gkr/capi/comm/log_upstream_log_consumer.h>
 
 #include <gkr/capi/log/logging.h>
 #include <gkr/capi/log/defs/generic.h>

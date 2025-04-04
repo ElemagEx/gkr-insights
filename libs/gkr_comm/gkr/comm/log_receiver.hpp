@@ -28,8 +28,8 @@ class log_receiver
     log_receiver& operator=(log_receiver&&) noexcept = delete;
 
 public:
-    GKR_SERVER_COMM_API log_receiver();
-    GKR_SERVER_COMM_API virtual ~log_receiver() noexcept(DIAG_NOEXCEPT) override;
+    GKR_COMM_API log_receiver();
+    GKR_COMM_API virtual ~log_receiver() noexcept(DIAG_NOEXCEPT) override;
 
 protected:
     virtual const char* get_name() noexcept override;
