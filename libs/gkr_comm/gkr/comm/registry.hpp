@@ -13,7 +13,7 @@ struct registry final
 {
     const bool initialed;
 
-    registry(bool client_only) : initialed(gkr_comm_providers_registry_init(client_only?1:0))
+    registry(bool client_only, bool add_comm_log = true) : initialed(gkr_comm_providers_registry_init(client_only?1:0, add_comm_log?1:0))
     {
     }
     ~registry()
@@ -28,17 +28,17 @@ public:
     }
 
 public:
-    bool start_all_providers()
+    static bool start_all_providers()
     {
         return gkr_comm_providers_start_all();
     }
-    bool stop_all_providers()
+    static bool stop_all_providers()
     {
         return gkr_comm_providers_stop_all();
     }
 
 public:
-    provider* register_provider(const char* name)
+    static provider* register_provider(const char* name)
     {
         return reinterpret_cast<provider*>(gkr_comm_register_provider(name));
     }

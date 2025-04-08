@@ -3,6 +3,8 @@
 #include <gkr/comm/registry.hpp>
 #include <gkr/comm/providers/lws_context.hpp>
 
+#include <gkr/comm/log.hxx>
+
 #include <gkr/diagnostics.hpp>
 
 #include <vector>
@@ -102,6 +104,8 @@ public:
 
         m_providers.push_back(provider);
 
+        LOGI_("Comm provider registed: %s", provider->get_name());
+
         return provider;
     }
 
@@ -119,15 +123,22 @@ public:
 
         for( ; index < m_providers.size(); ++index)
         {
-            if(!m_providers[index]->start()) break;
+            if(!m_providers[index]->start())
+            {
+                LOGE_("Failed to start provider: %s", m_providers[index]->get_name());
+                break;
+            }
+            LOGV_("Started comm provider: %s", m_providers[index]->get_name());
         }
         if(index == m_providers.size())
         {
             m_started = true;
+            LOGI("All comm providers are started");
         }
         else for( ; index > 0; --index)
         {
             m_providers[index - 1]->stop();
+            LOGV_("Stopped comm provider: %s", m_providers[index - 1]->get_name());
         }
         return m_started;
     }
@@ -138,8 +149,10 @@ public:
         for(std::size_t index = m_providers.size() ; index > 0; --index)
         {
             m_providers[index - 1]->stop();
+            LOGV_("Stopped comm provider: %s", m_providers[index - 1]->get_name());
         }
         m_started = false;
+        LOGI("All comm providers are stopped");
         return true;
     }
 };
@@ -159,11 +172,16 @@ gkr::comm::storage& get_storage()
 extern "C"
 {
 
-int gkr_comm_providers_registry_init(int clients_only)
+int gkr_comm_providers_registry_init(int clients_only, int add_log_comm_channel)
 {
     Check_ValidState(!get_storage().is_initialized(), gkr_b2i(false));
 
     get_storage().init(clients_only);
+
+    if(add_log_comm_channel)
+    {
+        gkr_comm_log_init();
+    }
     return gkr_b2i(true);
 }
 

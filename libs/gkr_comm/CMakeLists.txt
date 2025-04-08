@@ -27,6 +27,7 @@ target_sources(
 target_sources(
     gkr_comm
     INTERFACE
+    "gkr/comm/log.hxx"
     "gkr/comm/registry.hpp"
     "gkr/comm/bridge.hpp"
     "gkr/comm/log_receiver.hpp"
@@ -36,6 +37,7 @@ target_sources(
 target_sources(
     gkr_comm
     PRIVATE
+    "gkr/comm/log.cpp"
     "gkr/comm/registry.cpp"
     "gkr/comm/bridge.cpp"
     "gkr/comm/log_receiver.cpp"

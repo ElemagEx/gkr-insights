@@ -44,17 +44,23 @@ bool init(int argc, int argv)
 {
     load_config();
 
-    gkr_log_add_consumer(nullptr, std::make_shared<gkr::log::app_console_consumer>(gkr_log_appConsoleWriteMethod_puts));
+    auto consumer = std::make_shared<gkr::log::app_console_consumer>(gkr_log_appConsoleWriteMethod_puts);
+
+    gkr_log_add_consumer(nullptr, consumer);
+    gkr_log_add_consumer(gkr_log_get_channel(COMM_LOG_CHANNEL_NAME), consumer);
 
     LOGV("Mediator starting...");
 
-    s_registry.register_provider(nullptr);
+    gkr::comm::registry::register_provider(nullptr);
 
+
+
+//  s_log_receiver.configure();
     s_log_receiver.run();
 
     LOGI("Mediator started");
 
-    return s_registry.start_all_providers();
+    return gkr::comm::registry::start_all_providers();
 }
 
 int done()

@@ -3,6 +3,7 @@
 #include <gkr/comm/api.hpp>
 
 #include <gkr/comm/end_point.hpp>
+#include <gkr/comm/bridge.hpp>
 
 #include <gkr/concurency/worker_thread.hpp>
 #include <gkr/concurency/waitable_event.hpp>
@@ -12,6 +13,8 @@
 
 namespace gkr
 {
+class params;
+
 namespace comm
 {
 
@@ -30,6 +33,19 @@ class log_receiver
 public:
     GKR_COMM_API log_receiver();
     GKR_COMM_API virtual ~log_receiver() noexcept(DIAG_NOEXCEPT) override;
+
+public:
+    GKR_COMM_API bool configure(
+        int port,
+        const char* transport,
+        const char* provider_name = nullptr,
+        const params* parameters = nullptr,
+        std::size_t root = 0
+        );
+    GKR_COMM_API bool configure(
+        const params& parameters,
+        std::size_t root = 0
+        );
 
 protected:
     virtual const char* get_name() noexcept override;
@@ -62,9 +78,15 @@ public:
     bool del_collector(std::shared_ptr<log_collector> collector);
 
 private:
+    const params*  m_params = nullptr;
+    std::size_t    m_root   = 0;
+
+    int            m_port;
     waitable_event m_data_received_event;
 
     std::vector<std::shared_ptr<log_collector>> m_collectors;
+
+    std::shared_ptr<bridge> m_bridge;
 };
 
 }

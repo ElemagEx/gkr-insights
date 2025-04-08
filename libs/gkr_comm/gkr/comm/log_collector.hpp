@@ -1,5 +1,7 @@
 #pragma once
 
+#include <gkr/comm/api.hpp>
+
 namespace gkr
 {
 namespace comm

@@ -1,5 +1,7 @@
 #pragma once
 
+#define COMM_LOG_CHANNEL_NAME                           "GKR-Communication"
+
 #define COMM_TRANSPORT_WEB_SOCKET_SECURE                "web-socket-secure"
 #define COMM_TRANSPORT_WEB_SOCKET_PLAIN                 "web-socket-plain"
 
@@ -15,6 +17,7 @@
 #define COMM_PARAM_PROTOCOL_VERSION                     "protocol/version"
 #define COMM_PARAM_PROTOCOL_REMOTE_SERVER               "protocol/remote-server"
 #define COMM_PARAM_PROTOCOL_REMOTE_PORT                 "protocol/remote-port"
+#define COMM_PARAM_PROTOCOL_LISTEN_PORT                 "protocol/listen-port"
 
 #define COMM_PARAM_BRIDGE_SEND_QUEUE_INIT_ELEMENT_COUNT "bridge/send-queue-init-count"
 #define COMM_PARAM_BRIDGE_SEND_QUEUE_INIT_ELEMENT_SIZE  "bridge/send-queue-init-size"

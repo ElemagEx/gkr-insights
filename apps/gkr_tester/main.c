@@ -44,18 +44,22 @@ void save_config()
 
 int init(int argc, const char* argv[])
 {
+    int id;
+
     load_config();
 
     struct gkr_log_name_id_pair severities_infos[] = LOG_SEVERITIES_INFOS;
 
     gkr_net_lib_startup();
 
-    gkr_log_init(NULL, 32, 1024, severities_infos, NULL);
-    gkr_log_add_app_console_consumer(NULL, NULL, NULL, gkr_log_appConsoleWriteMethod_puts, 0);
+    gkr_log_init(NULL, 32, 1024, severities_infos, NULL, true);
+    id = gkr_log_add_app_console_consumer(NULL, NULL, NULL, gkr_log_appConsoleWriteMethod_puts, 0);
 
     LOGV("Tester starting...");
 
-    gkr_comm_providers_registry_init(1);
+    gkr_comm_providers_registry_init(true, true);
+    gkr_log_add_consumer_by_id(gkr_log_get_channel(COMM_LOG_CHANNEL_NAME), id);
+
     gkr_comm_register_provider(NULL);
 
     gkr_comm_add_upstream_log_consumer/*_ex*/(
@@ -97,7 +101,7 @@ int main(int argc, const char** argv)
     }
     else for(char buf[64]; ; )
     {
-        LOGI("Tester Running...");
+        LOGI("Tester running...");
 
         gets_s(buf, sizeof(buf));
 
