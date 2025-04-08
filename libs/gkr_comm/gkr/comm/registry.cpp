@@ -2,12 +2,16 @@
 
 #include <gkr/comm/registry.hpp>
 #include <gkr/comm/providers/lws_context.hpp>
+#include <gkr/comm/constants.hpp>
 
 #include <gkr/comm/log.hxx>
 
+#include <gkr/log/logging.hpp>
 #include <gkr/diagnostics.hpp>
 
 #include <vector>
+
+void* gkr_comm_log_instance = nullptr;
 
 namespace gkr
 {
@@ -180,7 +184,13 @@ int gkr_comm_providers_registry_init(int clients_only, int add_log_comm_channel)
 
     if(add_log_comm_channel)
     {
-        gkr_comm_log_init();
+        gkr_log_name_id_pair severities_infos[] = LOG_SEVERITIES_INFOS;
+        gkr_log_name_id_pair facilities_infos[] = {
+            {"gkr-comm", COMM_LOG_FACILITY_LIBRARY},
+            {"libWS"   , COMM_LOG_FACILITY_LWS    },
+            {nullptr  , 0}
+        };
+        gkr_comm_log_instance = gkr_log_add_channel(COMM_LOG_CHANNEL_NAME, 16, 256, severities_infos, facilities_infos);
     }
     return gkr_b2i(true);
 }

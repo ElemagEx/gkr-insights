@@ -37,7 +37,6 @@ target_sources(
 target_sources(
     gkr_comm
     PRIVATE
-    "gkr/comm/log.cpp"
     "gkr/comm/registry.cpp"
     "gkr/comm/bridge.cpp"
     "gkr/comm/log_receiver.cpp"

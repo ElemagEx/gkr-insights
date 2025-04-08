@@ -48,6 +48,7 @@ bool init(int argc, int argv)
 
     gkr_log_add_consumer(nullptr, consumer);
     gkr_log_add_consumer(gkr_log_get_channel(COMM_LOG_CHANNEL_NAME), consumer);
+    LOGI("GKR Mediator v0.1");
 
     LOGV("Mediator starting...");
 
@@ -69,7 +70,7 @@ int done()
 
     s_log_receiver.quit();
 
-    LOGV("Mediator stopped");
+    LOGI("Mediator stopped");
 
     save_config();
     return 0;

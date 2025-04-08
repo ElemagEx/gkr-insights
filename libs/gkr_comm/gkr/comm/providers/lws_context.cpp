@@ -8,8 +8,9 @@
 #include <gkr/comm/constants.hpp>
 #include <gkr/comm/bridge.hpp>
 
+#include <gkr/comm/log.hxx>
+
 #include <gkr/diagnostics.hpp>
-#include <gkr/log/defs/generic_cdefs.hpp>
 
 #include <libwebsockets.h>
 
@@ -24,6 +25,29 @@ namespace providers
 {
 namespace libwebsocket
 {
+
+static void log_callback(int level, const char *line)
+{
+    int severity;
+    if(level == 0)
+    {
+        severity = LOG_SEVERITY_FATAL;
+    }
+    else if(level & LLL_ERR   ) severity = LOG_SEVERITY_ERROR;
+    else if(level & LLL_WARN  ) severity = LOG_SEVERITY_WARNING;
+    else if(level & LLL_INFO  ) severity = LOG_SEVERITY_INFO;
+    else if(level & LLL_NOTICE) severity = LOG_SEVERITY_VERBOSE;
+    else if(level & LLL_DEBUG ) severity = LOG_SEVERITY_DEBUG;
+    else
+    {
+        severity = LOG_SEVERITY_TRACE;
+    }
+
+    const char* pos = std::strchr(line, ']');
+    if(pos != nullptr) line = pos + 2;
+
+    gkr_log_simple_message(gkr_comm_log_instance, severity, COMM_LOG_FACILITY_LWS, line);
+}
 
 context* context::create()
 {
@@ -99,7 +123,11 @@ bool context::start()
 {
     Check_ValidState(!m_thread.joinable(), false);
 
-    lws_set_log_level(LLL_USER | LLL_ERR | LLL_WARN | LLL_NOTICE, nullptr);
+    lws_log_emit_t callback = (gkr_comm_log_instance == nullptr)
+        ? nullptr
+        : log_callback
+        ;
+    lws_set_log_level(/*LLL_USER | LLL_ERR | LLL_WARN | LLL_NOTICE*/0xFFF, callback);// LLL_USER
 
     std::atomic_int initialized { 0 };
 

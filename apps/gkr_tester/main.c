@@ -54,6 +54,7 @@ int init(int argc, const char* argv[])
 
     gkr_log_init(NULL, 32, 1024, severities_infos, NULL, true);
     id = gkr_log_add_app_console_consumer(NULL, NULL, NULL, gkr_log_appConsoleWriteMethod_puts, 0);
+    LOGI("GKR Tester v0.1");
 
     LOGV("Tester starting...");
 
@@ -83,7 +84,7 @@ int done()
 
     gkr_comm_providers_registry_done();
 
-    LOGV("Tester stopped");
+    LOGI("Tester stopped");
 
     gkr_log_done();
 
