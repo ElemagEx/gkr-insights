@@ -132,7 +132,7 @@ public:
                 LOGE_("Failed to start provider: %s", m_providers[index]->get_name());
                 break;
             }
-            LOGV_("Started comm provider: %s", m_providers[index]->get_name());
+            LOGV_("Comm provider started: %s", m_providers[index]->get_name());
         }
         if(index == m_providers.size())
         {
@@ -142,7 +142,7 @@ public:
         else for( ; index > 0; --index)
         {
             m_providers[index - 1]->stop();
-            LOGV_("Stopped comm provider: %s", m_providers[index - 1]->get_name());
+            LOGV_("Comm provider stopped: %s", m_providers[index - 1]->get_name());
         }
         return m_started;
     }
@@ -153,7 +153,7 @@ public:
         for(std::size_t index = m_providers.size() ; index > 0; --index)
         {
             m_providers[index - 1]->stop();
-            LOGV_("Stopped comm provider: %s", m_providers[index - 1]->get_name());
+            LOGV_("Comm provider stopped: %s", m_providers[index - 1]->get_name());
         }
         m_started = false;
         LOGI("All comm providers are stopped");

@@ -14,9 +14,10 @@
 #include <iostream>
 
 constexpr gkr_log_name_id_pair g_severities_infos[] = LOG_SEVERITIES_INFOS;
+constexpr gkr_log_name_id_pair g_facilities_infos[] = {{"Mediator", 0}, {nullptr, 0}};
 
 static gkr::net ::lib      s_lib;
-static gkr::log ::logging  s_logging("logger", 32U, 1023U, g_severities_infos);
+static gkr::log ::logging  s_logging("logger", 32U, 1023U, g_severities_infos, g_facilities_infos);
 static gkr::comm::registry s_registry(false);
 
 static gkr::comm::log_receiver s_log_receiver;
@@ -30,6 +31,8 @@ void load_config()
     s_params.reserve(1024, 1024);
 
     int root = s_params.add_object("ws-log-receiver");
+
+    s_params.set_value(COMM_PARAM_PROTOCOL_TRANSPORT, COMM_TRANSPORT_WEB_SOCKET_PLAIN, root);
 
     s_params.set_value(COMM_PARAM_BRIDGE_RECV_QUEUE_INIT_ELEMENT_COUNT, 50  , root);
     s_params.set_value(COMM_PARAM_BRIDGE_RECV_QUEUE_INIT_ELEMENT_SIZE , 1024, root);
@@ -54,9 +57,7 @@ bool init(int argc, int argv)
 
     gkr::comm::registry::register_provider(nullptr);
 
-
-
-//  s_log_receiver.configure();
+    s_log_receiver.configure(s_params, s_params.find_node("ws-log-receiver"));
     s_log_receiver.run();
 
     LOGI("Mediator started");

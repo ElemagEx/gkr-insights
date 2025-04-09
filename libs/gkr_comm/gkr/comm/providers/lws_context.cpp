@@ -165,40 +165,29 @@ std::shared_ptr<bridge> context::create_bridge(const char* service_name, const c
     Check_Arg_NotNull(service_name, {});
     Check_Arg_NotNull(ep          , {});
 
-    service* s = nullptr;
-
-    if(*service_name == 0)
+    if(!std::strcmp(service_name, COMM_SERVICE_NAME_LOG_UPSTREAM_CLIENT))
     {
-    }
-    else if(!std::strcmp(service_name, COMM_SERVICE_NAME_LOG_UPSTREAM_CLIENT))
-    {
-        protocol* p = find_protocol(log_pipe::NAME);
+        protocol* proto = find_protocol(log_pipe::NAME);
 
-        if(p == nullptr)
+        if(proto == nullptr)
         {
-            p = new log_pipe();
-            add_protocol(p);
-            s = p;
+            proto = new log_pipe();
+            add_protocol(proto);
         }
+        return std::make_shared<bridge>(ep, proto);
     }
-    else if(!std::strcmp(service_name, COMM_SERVICE_NAME_LOG_UPSTREAM_SERVER))
+    if(!std::strcmp(service_name, COMM_SERVICE_NAME_LOG_UPSTREAM_SERVER))
     {
-        protocol* p = find_protocol(log_sink::NAME);
+        protocol* proto = find_protocol(log_sink::NAME);
 
-        if(p == nullptr)
+        if(proto == nullptr)
         {
-            p = new log_sink();
-            add_protocol(p);
-            s = p;
+            proto = new log_sink();
+            add_protocol(proto);
         }
+        return std::make_shared<bridge>(ep, proto);
     }
-    
-    if(s == nullptr)
-    {
-        Check_Recovery("Unknown/unsupported service name");
-        return nullptr;
-    }
-    return std::make_shared<bridge>(ep, s);
+    return nullptr;
 }
 
 protocol* context::find_protocol(const char* name)

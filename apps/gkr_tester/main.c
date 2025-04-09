@@ -44,15 +44,15 @@ void save_config()
 
 int init(int argc, const char* argv[])
 {
+    struct gkr_log_name_id_pair severities_infos[] = LOG_SEVERITIES_INFOS;
+    struct gkr_log_name_id_pair facilities_infos[] = {{"Tester", 0}, {NULL, 0}};
     int id;
 
     load_config();
 
-    struct gkr_log_name_id_pair severities_infos[] = LOG_SEVERITIES_INFOS;
-
     gkr_net_lib_startup();
 
-    gkr_log_init(NULL, 32, 1024, severities_infos, NULL, true);
+    gkr_log_init(NULL, 32, 1024, severities_infos, facilities_infos, true);
     id = gkr_log_add_app_console_consumer(NULL, NULL, NULL, gkr_log_appConsoleWriteMethod_puts, 0);
     LOGI("GKR Tester v0.1");
 

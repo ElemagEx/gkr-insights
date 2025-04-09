@@ -61,9 +61,49 @@ upstream_log_consumer::upstream_log_consumer(
     const params& parameters,
     std::size_t root
     )
-    : m_params(&parameters)
-    , m_root  (root)
 {
+    configure(parameters, root);
+}
+
+upstream_log_consumer::upstream_log_consumer(
+    const char* url,
+    const char* transport,
+    const char* provider_name,
+    const params* parameters,
+    std::size_t root
+    )
+{
+    configure(url, transport, provider_name, parameters, root);
+}
+
+upstream_log_consumer::~upstream_log_consumer()
+{
+    m_bridge.reset();
+}
+
+void upstream_log_consumer::reset(const params* parameters, std::size_t root)
+{
+    m_url   .clear();
+    m_bridge.reset();
+
+    m_params  = parameters;
+    m_root    = root;
+    m_format  = 0;
+    m_version = 0;
+}
+
+bool upstream_log_consumer::configure(
+    const params& parameters,
+    std::size_t root
+    )
+{
+    Check_ValidState(!m_started, false);
+
+    reset(&parameters, root);
+
+    m_params = &parameters;
+    m_root   = root;
+
     url_parts parts {};
     std::string transport, provider_name, format, path;
 
@@ -81,10 +121,10 @@ upstream_log_consumer::upstream_log_consumer(
         }
         m_version = m_params->get_value(COMM_PARAM_PROTOCOL_VERSION, m_root, m_version);
 
-        if(m_format >= std::size(SUPPORTED_FORMATS)) return;
-        if(m_version > FORMAT_MAX_VERSION[m_format]) return;
+        if(m_format >= std::size(SUPPORTED_FORMATS)) return false;
+        if(m_version > FORMAT_MAX_VERSION[m_format]) return false;
 
-        if(transport.empty()) return;
+        if(transport.empty()) return false;
 
         if(!transport.compare(COMM_TRANSPORT_WEB_SOCKET_SECURE))
         {
@@ -108,39 +148,45 @@ upstream_log_consumer::upstream_log_consumer(
         path.append(std::to_string(m_version));
         parts.path = path.c_str();
 
-        if(!m_url.construct(parts)) return;
+        if(!m_url.construct(parts)) return false;
     }
 
     provider* service_provider = registry::find_provider(provider_name.c_str());
-    if(service_provider == nullptr) return;
+    if(service_provider == nullptr) return false;
 
     m_bridge = service_provider->create_bridge(COMM_SERVICE_NAME_LOG_UPSTREAM_CLIENT, transport.c_str(), this);
+    if(m_bridge == nullptr) return false;
+
+    return is_successfully_configured();
 }
-upstream_log_consumer::upstream_log_consumer(
+
+bool upstream_log_consumer::configure(
     const char* url,
     const char* transport,
     const char* provider_name,
     const params* parameters,
     std::size_t root
     )
-    : m_params(parameters)
-    , m_root  (root)
 {
     Check_Arg_NotNull(url, );
 
+    Check_ValidState(!m_started, false);
+
+    reset(parameters, root);
+
     m_url.decompose(url);
 
-    if(m_url.parts().host == nullptr) return;
-    if(m_url.parts().path == nullptr) return;
+    if(m_url.parts().host == nullptr) return false;
+    if(m_url.parts().path == nullptr) return false;
 
-    if(!parse_path(m_url.parts().path)) return;
+    if(!parse_path(m_url.parts().path)) return false;
 
     if((transport == nullptr) && (m_url.parts().scheme != nullptr))
     {
         if(!std::strcmp(m_url.parts().scheme, "wss")) transport = COMM_TRANSPORT_WEB_SOCKET_SECURE;
         if(!std::strcmp(m_url.parts().scheme, "ws" )) transport = COMM_TRANSPORT_WEB_SOCKET_PLAIN ;
     }
-    if(transport == nullptr) return;
+    if(transport == nullptr) return false;
 
     url_parts parts = m_url.parts();
 
@@ -161,14 +207,12 @@ upstream_log_consumer::upstream_log_consumer(
     m_url.construct(parts);
 
     provider* service_provider = registry::find_provider(provider_name);
-    if(service_provider == nullptr) return;
+    if(service_provider == nullptr) return false;
 
     m_bridge = service_provider->create_bridge(COMM_SERVICE_NAME_LOG_UPSTREAM_CLIENT, transport, this);
-}
+    if(m_bridge == nullptr) return false;
 
-upstream_log_consumer::~upstream_log_consumer()
-{
-    m_bridge.reset();
+    return is_successfully_configured();
 }
 
 bool upstream_log_consumer::init_logging()
@@ -179,6 +223,8 @@ bool upstream_log_consumer::init_logging()
 
     m_bridge->connect();
 
+    m_started = true;
+
     return true;
 }
 
@@ -187,6 +233,8 @@ void upstream_log_consumer::done_logging()
     if(!m_bridge) return;
 
     m_bridge->close();
+
+    m_started = false;
 }
 
 bool upstream_log_consumer::filter_log_message(const log::message& msg)

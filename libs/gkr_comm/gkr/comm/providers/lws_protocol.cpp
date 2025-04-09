@@ -98,7 +98,10 @@ int server_protocol::server_callback(struct lws* wsi, enum lws_callback_reasons 
 
     const struct lws_protocols* proto = lws_get_protocol(wsi);
 
-    switch(reason)
+    if(proto == nullptr)
+    {
+    }
+    else switch(reason)
     {
         case LWS_CALLBACK_PROTOCOL_INIT:
             static_cast<server_protocol*>(proto->user)->on_init();

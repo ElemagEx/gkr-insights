@@ -44,6 +44,22 @@ public:
         );
     GKR_COMM_API virtual ~upstream_log_consumer() override;
 
+private:
+    void reset(const params* parameters, std::size_t root);
+
+public:
+    GKR_COMM_API bool configure(
+        const params& parameters,
+        std::size_t root = 0
+        );
+    GKR_COMM_API bool configure(
+        const char* url,
+        const char* transport = nullptr,
+        const char* provider_name = nullptr,
+        const params* parameters = nullptr,
+        std::size_t root = 0
+        );
+
 public:
     bool is_successfully_configured() const noexcept
     {
@@ -78,6 +94,7 @@ private:
     std::size_t             m_root    = 0;
     unsigned                m_format  = 0;
     unsigned                m_version = 0;
+    bool                    m_started = false;
 };
 
 }

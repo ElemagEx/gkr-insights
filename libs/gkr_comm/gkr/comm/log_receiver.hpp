@@ -47,6 +47,12 @@ public:
         std::size_t root = 0
         );
 
+public:
+    bool is_successfully_configured() const noexcept
+    {
+        return bool(m_bridge);
+    }
+
 protected:
     virtual const char* get_name() noexcept override;
 
@@ -78,10 +84,13 @@ public:
     bool del_collector(std::shared_ptr<log_collector> collector);
 
 private:
+    void configure_bridge();
+
+private:
     const params*  m_params = nullptr;
     std::size_t    m_root   = 0;
 
-    int            m_port;
+    int            m_port   = 0;
     waitable_event m_data_received_event;
 
     std::vector<std::shared_ptr<log_collector>> m_collectors;
