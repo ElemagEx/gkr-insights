@@ -51,8 +51,9 @@ void bridge::connect()
 {
 }
 
-void bridge::listen()
+bool bridge::listen()
 {
+    return m_service->listen();
 }
 
 void bridge::close()

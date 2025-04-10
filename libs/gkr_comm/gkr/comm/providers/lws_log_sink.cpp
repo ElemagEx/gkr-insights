@@ -11,15 +11,12 @@ namespace providers
 namespace libwebsocket
 {
 
-log_sink::log_sink()
+int log_sink::get_listen_port() noexcept
 {
+    return m_port;
 }
 
-log_sink::~log_sink()
-{
-}
-
-const char* log_sink::get_name()
+const char* log_sink::get_name() noexcept
 {
     return NAME;
 }
@@ -78,8 +75,9 @@ void log_sink::connect()
 {
 }
 
-void log_sink::listen()
+bool log_sink::listen()
 {
+    return true;
 }
 
 void log_sink::close()

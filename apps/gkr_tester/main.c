@@ -24,7 +24,9 @@ void load_config()
     params = gkr_params_create(false, malloc, free);
     gkr_params_reserve(params, 1024, 1024);
 
-    root = gkr_params_add_object(params, "ws-log", 0);
+    root = gkr_params_add_object(params, "lws", 0);
+
+    root = gkr_params_add_object(params, "ws-log-upstream", 0);
 
     gkr_params_set_value_string (params, COMM_PARAM_PROTOCOL_TRANSPORT    , COMM_TRANSPORT_WEB_SOCKET_PLAIN, root, false);
     gkr_params_set_value_string (params, COMM_PARAM_PROTOCOL_FORMAT       , "binary", root, false);
@@ -61,7 +63,7 @@ int init(int argc, const char* argv[])
     gkr_comm_providers_registry_init(true, true);
     gkr_log_add_consumer_by_id(gkr_log_get_channel(COMM_LOG_CHANNEL_NAME), id);
 
-    gkr_comm_register_provider(NULL);
+    gkr_comm_register_provider_ex(COMM_PROVIDER_NAME_LIBWEBSOCKET, params, gkr_params_find_node(params, "lws"));
 
     gkr_comm_add_upstream_log_consumer/*_ex*/(
         NULL,
@@ -71,7 +73,7 @@ int init(int argc, const char* argv[])
 //        NULL,
 //        NULL,
         params,
-        gkr_params_find_node(params, "ws-log"));
+        gkr_params_find_node(params, "ws-log-upstream"));
 
     gkr_comm_providers_start_all();
     LOGI("Tester started");

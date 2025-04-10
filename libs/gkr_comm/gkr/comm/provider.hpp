@@ -11,6 +11,9 @@ namespace comm
 
 class end_point;
 class bridge;
+
+using bridge_ptr_t = std::shared_ptr<bridge>;
+
 class provider
 {
 protected:
@@ -24,7 +27,7 @@ public:
     virtual bool start() = 0;
     virtual void stop () = 0;
 
-    virtual std::shared_ptr<bridge> create_bridge(const char* service_name, const char* transport, end_point* ep) = 0;
+    virtual bridge_ptr_t create_bridge(end_point* ep, const char* service_name, const char* transport, int port = 0) = 0;
 };
 
 }

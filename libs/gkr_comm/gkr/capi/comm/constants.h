@@ -2,14 +2,16 @@
 
 #define COMM_LOG_CHANNEL_NAME                           "GKR-Communication"
 
-#define COMM_TRANSPORT_WEB_SOCKET_SECURE                "web-socket-secure"
-#define COMM_TRANSPORT_WEB_SOCKET_PLAIN                 "web-socket-plain"
+#define COMM_PROVIDER_NAME_LIBWEBSOCKET                 "libwebsocket"
 
 #define COMM_SERVICE_NAME_LOG_UPSTREAM_CLIENT           "log-upstream-client"
 #define COMM_SERVICE_NAME_LOG_UPSTREAM_SERVER           "log-upstream-server"
 
-#define COMM_PORT_LOG_UPSTREAM_WEB_SOCKET_SECURE        9301
-#define COMM_PORT_LOG_UPSTREAM_WEB_SOCKET_PLAIN         9302
+#define COMM_TRANSPORT_WEB_SOCKET_SECURE                "web-socket-secure"
+#define COMM_TRANSPORT_WEB_SOCKET_PLAIN                 "web-socket-plain"
+
+#define COMM_PORT_LOG_UPSTREAM_WEB_SOCKET_SECURE        9301 /*443*/
+#define COMM_PORT_LOG_UPSTREAM_WEB_SOCKET_PLAIN         9302 /*80*/
 
 #define COMM_PARAM_PROTOCOL_SERVICE_PROVIDER            "protocol/service-provider"
 #define COMM_PARAM_PROTOCOL_TRANSPORT                   "protocol/transport"

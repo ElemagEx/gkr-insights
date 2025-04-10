@@ -18,7 +18,7 @@ public:
 
 public:
     virtual void connect() = 0;
-    virtual void listen() = 0;
+    virtual bool listen() = 0;
     virtual void close() = 0;
 
     virtual void on_data_sent() = 0;

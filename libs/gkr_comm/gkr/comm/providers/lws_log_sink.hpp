@@ -13,15 +13,23 @@ namespace libwebsocket
 
 class log_sink : public server_protocol
 {
+    int m_port = 0;
+
 public:
     static constexpr const char* NAME = "gkr-log-sink";
 
 public:
-    log_sink();
-    virtual ~log_sink() override;
+    log_sink(int port) noexcept : m_port(port)
+    {
+    }
+    virtual ~log_sink() noexcept override
+    {
+    }
 
 protected:
-    virtual const char* get_name() override;
+    virtual int get_listen_port() noexcept override;
+
+    virtual const char* get_name() noexcept override;
 
     virtual unsigned get_info(std::size_t& ps_size, std::size_t& rx_size, std::size_t& tx_size) override;
 
@@ -45,7 +53,7 @@ protected:
 
 protected:
     virtual void connect() override;
-    virtual void listen() override;
+    virtual bool listen() override;
     virtual void close() override;
 
     virtual void on_data_sent() override;

@@ -26,28 +26,32 @@ class protocol : public service
 {
     friend class context;
     struct lws_context* m_context = nullptr;
+    bool m_is_secure = false;
 
 protected:
-    GKR_COMM_API protocol();
-
-public:
-    GKR_COMM_API virtual ~protocol();
-
-private:
-    void set_parent_context(struct lws_context* context)
+    protocol() noexcept
     {
-        m_context = context;
     }
+    virtual ~protocol() noexcept
+    {
+    }
+
 protected:
-    struct lws_context* get_parent_context()
+    struct lws_context* get_parent_context() noexcept
     {
         return m_context;
     }
+    bool is_secure() noexcept
+    {
+        return m_is_secure;
+    }
 
 protected:
-    virtual void* get_callback() = 0;
+    virtual void* get_callback() noexcept = 0;
 
-    virtual const char* get_name() = 0;
+    virtual int get_listen_port() noexcept = 0;
+
+    virtual const char* get_name() noexcept = 0;
 
     virtual unsigned get_info(std::size_t& ps_size, std::size_t& rx_size, std::size_t& tx_size) = 0;
 
@@ -57,39 +61,63 @@ protected:
 class dummy_protocol : public protocol
 {
 public:
-    GKR_COMM_API dummy_protocol();
-    GKR_COMM_API virtual ~dummy_protocol() override;
+    dummy_protocol() noexcept
+    {
+    }
+    virtual ~dummy_protocol() noexcept override
+    {
+    }
 
 protected:
-    virtual void* get_callback() override;
+    virtual void* get_callback() noexcept override;
 
-    virtual const char* get_name() override;
+    virtual int get_listen_port() noexcept override;
+
+    virtual const char* get_name() noexcept override;
 
     virtual unsigned get_info(std::size_t& ps_size, std::size_t& rx_size, std::size_t& tx_size) override;
 
     virtual void on_other_reason(int reason, const void* data, std::size_t size) override;
 
 private:
-    static int dummy_callback(struct lws*, enum lws_callback_reasons, void*, void*, std::size_t);
+    friend int dummy_callback(struct lws*, enum lws_callback_reasons, void*, void*, std::size_t);
+
+private:
+    virtual bool can_connect() override;
+    virtual bool can_listen() override;
+
+private:
+    virtual void connect() override;
+    virtual bool listen() override;
+    virtual void close() override;
+
+    virtual void on_data_sent() override;
+    virtual void on_error() override;
 };
 
 class server_protocol : public protocol
 {
-public:
-    GKR_COMM_API server_protocol();
-    GKR_COMM_API virtual ~server_protocol() override;
+protected:
+    server_protocol() noexcept
+    {
+    }
+    virtual ~server_protocol() noexcept override
+    {
+    }
 
 protected:
-    GKR_COMM_API virtual void* get_callback() override;
+    virtual void* get_callback() noexcept override;
 
-    virtual const char* get_name() = 0;
+    virtual int get_listen_port() noexcept = 0;
+
+    virtual const char* get_name() noexcept = 0;
 
     virtual unsigned get_info(std::size_t& ps_size, std::size_t& rx_size, std::size_t& tx_size) = 0;
 
     virtual void on_other_reason(int reason, const void* data, std::size_t size) = 0;
 
 private:
-    static int server_callback(struct lws*, enum lws_callback_reasons, void*, void*, std::size_t);
+    friend int server_callback(struct lws*, enum lws_callback_reasons, void*, void*, std::size_t);
 
 protected:
     virtual void on_init() = 0;
@@ -109,23 +137,29 @@ class client_protocol : public protocol
     url m_connect_url;
 
 public:
-    GKR_COMM_API client_protocol();
-    GKR_COMM_API virtual ~client_protocol() override;
+    client_protocol() noexcept
+    {
+    }
+    virtual ~client_protocol() noexcept override
+    {
+    }
 
 public:
     bool connect(const char* url, const char* protocol);
 
 protected:
-    GKR_COMM_API virtual void* get_callback() override;
+    virtual void* get_callback() noexcept override;
 
-    virtual const char* get_name() = 0;
+    virtual int get_listen_port() noexcept override;
+
+    virtual const char* get_name() noexcept = 0;
 
     virtual unsigned get_info(std::size_t& ps_size, std::size_t& rx_size, std::size_t& tx_size) = 0;
 
     virtual void on_other_reason(int reason, const void* data, std::size_t size) = 0;
 
 private:
-    static int client_callback(struct lws*, enum lws_callback_reasons, void*, void*, std::size_t);
+    friend int client_callback(struct lws*, enum lws_callback_reasons, void*, void*, std::size_t);
 
 protected:
     virtual void on_init() = 0;

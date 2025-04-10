@@ -30,7 +30,11 @@ void load_config()
 
     s_params.reserve(1024, 1024);
 
-    int root = s_params.add_object("ws-log-receiver");
+    int root = s_params.add_object("lws");
+
+
+
+    root = s_params.add_object("ws-log-receiver");
 
     s_params.set_value(COMM_PARAM_PROTOCOL_TRANSPORT, COMM_TRANSPORT_WEB_SOCKET_PLAIN, root);
 
@@ -55,7 +59,7 @@ bool init(int argc, int argv)
 
     LOGV("Mediator starting...");
 
-    gkr::comm::registry::register_provider(nullptr);
+    gkr::comm::registry::register_provider(COMM_PROVIDER_NAME_LIBWEBSOCKET, s_params, s_params.find_node("lws"));
 
     s_log_receiver.configure(s_params, s_params.find_node("ws-log-receiver"));
     s_log_receiver.run();

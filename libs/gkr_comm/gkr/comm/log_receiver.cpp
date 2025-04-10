@@ -56,17 +56,16 @@ bool log_receiver::configure(
         LOGE_("Log Receiver configuration failed - cannot find provider with name: (%s)", provider_name);
         return false;
     }
-    auto bridge = service_provider->create_bridge(COMM_SERVICE_NAME_LOG_UPSTREAM_SERVER, transport, this);
+    auto bridge = service_provider->create_bridge(this, COMM_SERVICE_NAME_LOG_UPSTREAM_SERVER, transport, port);
     if(bridge == nullptr) return false;
 
     m_bridge.reset();
 
     m_params = parameters;
     m_root   = root;
-    m_port   = port;
     m_bridge = bridge;
 
-    LOGI_("Log Receiver configured on port %i with transport '%s' and provider '%s'", m_port, transport, service_provider->get_name());
+    LOGI_("Log Receiver configured on port %i with transport '%s' and provider '%s'", port, transport, service_provider->get_name());
     return true;
 }
 
@@ -132,7 +131,7 @@ bool log_receiver::on_start()
 
     configure_bridge();
 
-    return true;
+    return m_bridge->listen();
 }
 
 void log_receiver::on_finish()

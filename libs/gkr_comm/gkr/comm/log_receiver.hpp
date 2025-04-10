@@ -90,7 +90,6 @@ private:
     const params*  m_params = nullptr;
     std::size_t    m_root   = 0;
 
-    int            m_port   = 0;
     waitable_event m_data_received_event;
 
     std::vector<std::shared_ptr<log_collector>> m_collectors;

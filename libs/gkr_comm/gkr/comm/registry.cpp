@@ -249,13 +249,33 @@ const char* gkr_comm_provider_get_name(struct gkr_comm_provider* provider)
 
 struct gkr_comm_provider* gkr_comm_register_provider(const char* name)
 {
+    Check_Arg_NotNull(name);
+
     Check_ValidState(get_storage().is_initialized(), nullptr);
 
     gkr::comm::provider* provider = nullptr;
 
-    if((name == nullptr) || !std::strcmp(name, "libwebsocket"))
+    if(!std::strcmp(name, COMM_PROVIDER_NAME_LIBWEBSOCKET))
     {
         provider = gkr::comm::providers::libwebsocket::context::create();
+    }
+
+    if(provider == nullptr) return nullptr;
+
+    return reinterpret_cast<struct gkr_comm_provider*>(get_storage().add(provider));
+}
+
+struct gkr_comm_provider* gkr_comm_register_provider_ex(const char* name, const struct gkr_params* parameters, size_t root)
+{
+    Check_Arg_NotNull(name);
+
+    Check_ValidState(get_storage().is_initialized(), nullptr);
+
+    gkr::comm::provider* provider = nullptr;
+
+    if(!std::strcmp(name, COMM_PROVIDER_NAME_LIBWEBSOCKET))
+    {
+        provider = gkr::comm::providers::libwebsocket::context::create(reinterpret_cast<const gkr::params*>(parameters), root);
     }
 
     if(provider == nullptr) return nullptr;

@@ -34,34 +34,30 @@ struct per_session_data
     struct lws* wsi;
 };
 
-protocol::protocol()
+int dummy_callback(struct lws* wsi, enum lws_callback_reasons reason, void* user, void* in, size_t len)
 {
-}
+    struct per_session_data* psd = (struct per_session_data*)user;
 
-protocol::~protocol()
-{
-}
+    const struct lws_protocols* proto = lws_get_protocol(wsi);
 
-dummy_protocol::dummy_protocol()
-{
-}
-
-dummy_protocol::~dummy_protocol()
-{
-}
-
-int dummy_protocol::dummy_callback(struct lws* wsi, enum lws_callback_reasons reason, void* user, void* in, size_t len)
-{
-    static_cast<dummy_protocol*>(user)->on_other_reason(reason, in, len);
-
+    if((proto != nullptr) && (proto->user != nullptr))
+    {
+        static_cast<dummy_protocol*>(proto->user)->on_other_reason(reason, in, len);
+    }
     return lws_callback_http_dummy(wsi, reason, user, in, len);
 }
-
-const char* dummy_protocol::get_name()
+void* dummy_protocol::get_callback() noexcept
+{
+    return dummy_callback;
+}
+int dummy_protocol::get_listen_port() noexcept
+{
+    return 0;
+}
+const char* dummy_protocol::get_name() noexcept
 {
     return "http";
 }
-
 unsigned dummy_protocol::get_info(std::size_t& ps_size, std::size_t& rx_size, std::size_t& tx_size)
 {
     ps_size = 0;
@@ -69,30 +65,35 @@ unsigned dummy_protocol::get_info(std::size_t& ps_size, std::size_t& rx_size, st
     tx_size = 0;
     return 0;
 }
-
-void* dummy_protocol::get_callback()
-{
-    return dummy_callback;
-}
-
 void dummy_protocol::on_other_reason(int reason, const void* data, std::size_t size)
 {
 }
-
-server_protocol::server_protocol()
+bool dummy_protocol::can_connect()
+{
+    return false;
+}
+bool dummy_protocol::can_listen()
+{
+    return false;
+}
+void dummy_protocol::connect()
+{
+}
+bool dummy_protocol::listen()
+{
+    return false;
+}
+void dummy_protocol::close()
+{
+}
+void dummy_protocol::on_data_sent()
+{
+}
+void dummy_protocol::on_error()
 {
 }
 
-server_protocol::~server_protocol()
-{
-}
-
-void* server_protocol::get_callback()
-{
-    return server_callback;
-}
-
-int server_protocol::server_callback(struct lws* wsi, enum lws_callback_reasons reason, void* user, void* in, std::size_t len)
+int server_callback(struct lws* wsi, enum lws_callback_reasons reason, void* user, void* in, std::size_t len)
 {
     struct per_session_data* psd = (struct per_session_data*)user;
 
@@ -138,56 +139,12 @@ int server_protocol::server_callback(struct lws* wsi, enum lws_callback_reasons 
     return 0;
 }
 
-client_protocol::client_protocol()
+void* server_protocol::get_callback() noexcept
 {
+    return server_callback;
 }
 
-client_protocol::~client_protocol()
-{
-}
-
-void* client_protocol::get_callback()
-{
-    return client_callback;
-}
-
-bool client_protocol::connect(const char* url, const char* protocol)
-{
-    Check_Arg_NotNull(url);
-
-    if(m_connect_url.is_valid()) return false;
-
-    m_connect_url.decompose(url);
-
-    if(!m_connect_url.is_valid()) return false;
-
-    struct lws_client_connect_info info;
-    std::memset(&info, 0, sizeof(info));
-
-    int ssl_connection;
-
-    if     (!std::strcmp(m_connect_url.parts().scheme, "wss")) {ssl_connection = LCCSCF_USE_SSL; }
-    else if(!std::strcmp(m_connect_url.parts().scheme, "ws" )) {ssl_connection = 0; }
-    else
-    {
-        m_connect_url.clear();
-        return false;
-    }
-    info.context               = get_parent_context();
-    info.port                  = m_connect_url.parts().port;
-    info.address               = m_connect_url.parts().host;
-    info.path                  = m_connect_url.parts().path;
-    info.host                  = info.address;
-    info.origin                = info.address;
-    info.ssl_connection        = ssl_connection;
-    info.protocol              = protocol;
-    info.local_protocol_name   = get_name();
-//  info.retry_and_idle_policy = &retry;
-
-    return true;
-}
-
-int client_protocol::client_callback(struct lws* wsi, enum lws_callback_reasons reason, void* user, void* in, std::size_t len)
+int client_callback(struct lws* wsi, enum lws_callback_reasons reason, void* user, void* in, std::size_t len)
 {
     struct per_session_data* psd = (struct per_session_data*)user;
 
@@ -234,6 +191,52 @@ int client_protocol::client_callback(struct lws* wsi, enum lws_callback_reasons 
             break;
     }
     return 0;
+}
+
+void* client_protocol::get_callback() noexcept
+{
+    return client_callback;
+}
+
+int client_protocol::get_listen_port() noexcept
+{
+    return CONTEXT_PORT_NO_LISTEN;
+}
+
+bool client_protocol::connect(const char* url, const char* protocol)
+{
+    Check_Arg_NotNull(url);
+
+    if(m_connect_url.is_valid()) return false;
+
+    m_connect_url.decompose(url);
+
+    if(!m_connect_url.is_valid()) return false;
+
+    struct lws_client_connect_info info;
+    std::memset(&info, 0, sizeof(info));
+
+    int ssl_connection;
+
+    if     (!std::strcmp(m_connect_url.parts().scheme, "wss")) {ssl_connection = LCCSCF_USE_SSL; }
+    else if(!std::strcmp(m_connect_url.parts().scheme, "ws" )) {ssl_connection = 0; }
+    else
+    {
+        m_connect_url.clear();
+        return false;
+    }
+    info.context               = get_parent_context();
+    info.port                  = m_connect_url.parts().port;
+    info.address               = m_connect_url.parts().host;
+    info.path                  = m_connect_url.parts().path;
+    info.host                  = info.address;
+    info.origin                = info.address;
+    info.ssl_connection        = ssl_connection;
+    info.protocol              = protocol;
+    info.local_protocol_name   = get_name();
+//  info.retry_and_idle_policy = &retry;
+
+    return true;
 }
 
 }

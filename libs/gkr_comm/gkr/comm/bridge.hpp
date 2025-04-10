@@ -63,7 +63,7 @@ public:
     GKR_COMM_API void configure_incoming_queue(std::size_t init_count, std::size_t init_size, float reserve_factor);
 
     GKR_COMM_API void connect();
-    GKR_COMM_API void listen();
+    GKR_COMM_API bool listen();
     GKR_COMM_API void close();
     GKR_COMM_API void done();
 

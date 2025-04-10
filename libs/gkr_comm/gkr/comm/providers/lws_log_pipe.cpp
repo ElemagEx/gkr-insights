@@ -11,15 +11,7 @@ namespace providers
 namespace libwebsocket
 {
 
-log_pipe::log_pipe()
-{
-}
-
-log_pipe::~log_pipe()
-{
-}
-
-const char* log_pipe::get_name()
+const char* log_pipe::get_name() noexcept
 {
     return NAME;
 }
@@ -82,8 +74,9 @@ void log_pipe::connect()
 {
 }
 
-void log_pipe::listen()
+bool log_pipe::listen()
 {
+    return false;
 }
 
 void log_pipe::close()

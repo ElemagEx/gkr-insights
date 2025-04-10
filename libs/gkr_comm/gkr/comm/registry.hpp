@@ -6,6 +6,8 @@
 
 namespace gkr
 {
+class params;
+
 namespace comm
 {
 
@@ -41,6 +43,10 @@ public:
     static provider* register_provider(const char* name)
     {
         return reinterpret_cast<provider*>(gkr_comm_register_provider(name));
+    }
+    static provider* register_provider(const char* name, params& parameters, std::size_t root = 0)
+    {
+        return reinterpret_cast<provider*>(gkr_comm_register_provider_ex(name, reinterpret_cast<struct gkr_params*>(&parameters), root));
     }
 
 private:

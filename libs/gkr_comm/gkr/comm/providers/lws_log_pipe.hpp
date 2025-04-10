@@ -17,11 +17,15 @@ public:
     static constexpr const char* NAME = "gkr-log-pipe";
 
 public:
-    log_pipe();
-    virtual ~log_pipe() override;
+    log_pipe() noexcept
+    {
+    }
+    virtual ~log_pipe() noexcept override
+    {
+    }
 
 protected:
-    virtual const char* get_name() override;
+    virtual const char* get_name() noexcept override;
 
     virtual unsigned get_info(std::size_t& ps_size, std::size_t& rx_size, std::size_t& tx_size) override;
 
@@ -47,7 +51,7 @@ protected:
 
 protected:
     virtual void connect() override;
-    virtual void listen() override;
+    virtual bool listen() override;
     virtual void close() override;
 
     virtual void on_data_sent() override;

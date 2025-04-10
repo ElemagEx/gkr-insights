@@ -3,8 +3,10 @@
 #include <gkr/comm/log_upstream_log_consumer.hpp>
 #include <gkr/comm/constants.hpp>
 #include <gkr/comm/registry.hpp>
-#include <gkr/params.hpp>
 
+#include <gkr/comm/log.hxx>
+
+#include <gkr/params.hpp>
 #include <gkr/log/logging.hpp>
 #include <gkr/log/c_consumer.hpp>
 
@@ -154,7 +156,7 @@ bool upstream_log_consumer::configure(
     provider* service_provider = registry::find_provider(provider_name.c_str());
     if(service_provider == nullptr) return false;
 
-    m_bridge = service_provider->create_bridge(COMM_SERVICE_NAME_LOG_UPSTREAM_CLIENT, transport.c_str(), this);
+    m_bridge = service_provider->create_bridge(this, COMM_SERVICE_NAME_LOG_UPSTREAM_CLIENT, transport.c_str());
     if(m_bridge == nullptr) return false;
 
     return is_successfully_configured();
@@ -209,7 +211,7 @@ bool upstream_log_consumer::configure(
     provider* service_provider = registry::find_provider(provider_name);
     if(service_provider == nullptr) return false;
 
-    m_bridge = service_provider->create_bridge(COMM_SERVICE_NAME_LOG_UPSTREAM_CLIENT, transport, this);
+    m_bridge = service_provider->create_bridge(this, COMM_SERVICE_NAME_LOG_UPSTREAM_CLIENT, transport);
     if(m_bridge == nullptr) return false;
 
     return is_successfully_configured();
@@ -330,6 +332,8 @@ void upstream_log_consumer::configure_bridge()
     }
 
     m_bridge->configure_outgoing_queue(init_count, init_size, res_factor);
+
+    LOGV_("Log Upstream configured bridge send queue with %zu elements with %zu bytes each - with res factor: %.2f", init_count, init_size, res_factor);
 }
 
 }
