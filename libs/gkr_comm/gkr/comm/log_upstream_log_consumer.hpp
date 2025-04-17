@@ -77,10 +77,10 @@ protected:
     virtual const char* compose_output(const log::message& msg, unsigned* len, int flags);
 
 protected:
-    virtual bool on_error(int evt, void* data, std::size_t) override;
-    virtual void on_connect() override;
-    virtual void on_disconnect() override;
-    virtual void on_data_received() override;
+    virtual void on_error(int event, const void* data, std::size_t) override;
+    virtual void on_connect(connection* conn) override;
+    virtual void on_disconnect(connection* conn) override;
+    virtual void on_data_received(connection* conn) override;
 
 private:
     bool parse_path(const char* path);
@@ -90,6 +90,7 @@ private:
 private:
     std::shared_ptr<bridge> m_bridge;
     url                     m_url;
+    connection*             m_conn    = nullptr;
     const params*           m_params  = nullptr;
     std::size_t             m_root    = 0;
     unsigned                m_format  = 0;

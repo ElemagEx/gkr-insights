@@ -48,14 +48,12 @@ target_sources(
     PUBLIC
     "gkr/comm/providers/lws_context.hpp"
     "gkr/comm/providers/lws_protocol.hpp"
-    "gkr/comm/providers/lws_log_pipe.hpp"
-    "gkr/comm/providers/lws_log_sink.hpp"
+    "gkr/comm/providers/lws_instance.hpp"
 )
 target_sources(
     gkr_comm
     PRIVATE
     "gkr/comm/providers/lws_context.cpp"
     "gkr/comm/providers/lws_protocol.cpp"
-    "gkr/comm/providers/lws_log_pipe.cpp"
-    "gkr/comm/providers/lws_log_sink.cpp"
+    "gkr/comm/providers/lws_instance.cpp"
 )

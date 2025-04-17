@@ -71,9 +71,7 @@ protected:
     virtual std::shared_ptr<bridge> create_bridge(end_point* ep, const char* service_name, const char* transport, int port) override;
 
 private:
-    protocol* find_protocol(const char* name, bool is_secure, int port);
-
-    protocol* add_protocol(protocol* p, bool is_secure);
+    protocol* add_protocol(protocol* p, bool infront = false);
 
 private:
     bool setup(struct lws_context_creation_info& info);

@@ -21,10 +21,12 @@
 #define COMM_PARAM_PROTOCOL_REMOTE_PORT                 "protocol/remote-port"
 #define COMM_PARAM_PROTOCOL_LISTEN_PORT                 "protocol/listen-port"
 
+#define COMM_PARAM_BRIDGE_SEND_QUEUE_MAX_ELEMENT_COUNT  "bridge/send-queue-max-count"
 #define COMM_PARAM_BRIDGE_SEND_QUEUE_INIT_ELEMENT_COUNT "bridge/send-queue-init-count"
 #define COMM_PARAM_BRIDGE_SEND_QUEUE_INIT_ELEMENT_SIZE  "bridge/send-queue-init-size"
 #define COMM_PARAM_BRIDGE_SEND_QUEUE_RESERVE_FACTOR     "bridge/send-queue-res-factor"
 
+#define COMM_PARAM_BRIDGE_RECV_QUEUE_MAX_ELEMENT_COUNT  "bridge/recv-queue-max-count"
 #define COMM_PARAM_BRIDGE_RECV_QUEUE_INIT_ELEMENT_COUNT "bridge/recv-queue-init-count"
 #define COMM_PARAM_BRIDGE_RECV_QUEUE_INIT_ELEMENT_SIZE  "bridge/recv-queue-init-size"
 #define COMM_PARAM_BRIDGE_RECV_QUEUE_RESERVE_FACTOR     "bridge/recv-queue-res-factor"

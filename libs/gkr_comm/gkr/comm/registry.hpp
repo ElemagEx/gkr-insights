@@ -15,7 +15,7 @@ struct registry final
 {
     const bool initialed;
 
-    registry(bool client_only, bool add_comm_log = true) : initialed(gkr_comm_providers_registry_init(client_only?1:0, add_comm_log?1:0))
+    registry(bool add_comm_log_channel = true) : initialed(gkr_comm_providers_registry_init(gkr_b2i(add_comm_log_channel)))
     {
     }
     ~registry()

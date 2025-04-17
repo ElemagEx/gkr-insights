@@ -18,7 +18,7 @@ constexpr gkr_log_name_id_pair g_facilities_infos[] = {{"Mediator", 0}, {nullptr
 
 static gkr::net ::lib      s_lib;
 static gkr::log ::logging  s_logging("logger", 32U, 1023U, g_severities_infos, g_facilities_infos);
-static gkr::comm::registry s_registry(false);
+static gkr::comm::registry s_registry(true);
 
 static gkr::comm::log_receiver s_log_receiver;
 

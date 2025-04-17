@@ -7,7 +7,7 @@ extern "C" {
 struct gkr_comm_provider;
 struct gkr_params;
 
-GKR_COMM_API int gkr_comm_providers_registry_init(int clients_only, int add_log_comm_channel);
+GKR_COMM_API int gkr_comm_providers_registry_init(int add_log_comm_channel);
 GKR_COMM_API int gkr_comm_providers_registry_done();
 
 GKR_COMM_API int gkr_comm_providers_count_in_registry();

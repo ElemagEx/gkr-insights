@@ -1,9 +1,8 @@
 #include <gkr/defs.hpp>
 
 #include <gkr/comm/providers/lws_context.hpp>
+#include <gkr/comm/providers/lws_instance.hpp>
 #include <gkr/comm/providers/lws_protocol.hpp>
-#include <gkr/comm/providers/lws_log_pipe.hpp>
-#include <gkr/comm/providers/lws_log_sink.hpp>
 
 #include <gkr/comm/constants.hpp>
 #include <gkr/comm/bridge.hpp>
@@ -58,8 +57,6 @@ context::context(const params* parameters, std::size_t root) : m_params(paramete
 {
     m_protocols.reserve(4);
     m_protocols.push_back(LWS_PROTOCOL_LIST_TERM);
-
-    add_protocol(new dummy_protocol(), false);
 }
 
 context::~context()
@@ -68,11 +65,9 @@ context::~context()
 
 int context::thread_init()
 {
-    Assert_Check(m_protocols.size() >= 3);
+    Assert_Check(m_protocols.size() >= 2);
 
-    struct lws_context_creation_info info;
-
-    std::memset(&info, 0, sizeof(info));
+    struct lws_context_creation_info info {};
 
     if(!setup(info)) return -1;
 
@@ -103,11 +98,19 @@ void context::thread_loop()
 
 void context::thread_done()
 {
-    if(m_context != nullptr)
+    if(m_context == nullptr) return;
+
+    Assert_Check(m_protocols.size() >= 1);
+
+    lws_context_destroy(m_context);
+    m_context = nullptr;
+
+    for(std::size_t index = m_protocols.size() - 1; index-- > 0; )
     {
-        lws_context_destroy(m_context);
-        m_context = nullptr;
+        delete static_cast<protocol*>(m_protocols[index].user);
     }
+    m_protocols.clear();
+    m_protocols.push_back(LWS_PROTOCOL_LIST_TERM);
 }
 
 void context::release()
@@ -169,23 +172,19 @@ std::shared_ptr<bridge> context::create_bridge(end_point* ep, const char* servic
 
     Check_Arg_IsValid((port >= -1) && (port <= 65535), {});
 
+    Check_ValidState(!is_running(), {});
+
     protocol* proto = nullptr;
 
     if(!std::strcmp(service_name, COMM_SERVICE_NAME_LOG_UPSTREAM_CLIENT))
     {
         if(!std::strcmp(transport, COMM_TRANSPORT_WEB_SOCKET_PLAIN))
         {
-            if(nullptr == (proto = find_protocol(log_pipe::NAME, false, CONTEXT_PORT_NO_LISTEN)))
-            {
-                proto = add_protocol(new log_pipe(), false);
-            }
+            proto = add_protocol(new client_protocol("gkr-log-pipe", service::FLAG_CAN_SEND_DATA));
         }
         else if(!std::strcmp(transport, COMM_TRANSPORT_WEB_SOCKET_SECURE))
         {
-            if(nullptr == (proto = find_protocol(log_pipe::NAME, true, CONTEXT_PORT_NO_LISTEN)))
-            {
-                proto = add_protocol(new log_pipe(), true);
-            }
+            proto = add_protocol(new client_protocol("gkr-log-pipe", service::FLAG_CAN_SEND_DATA | service::FLAG_SECURE));
         }
         else
         {
@@ -196,17 +195,11 @@ std::shared_ptr<bridge> context::create_bridge(end_point* ep, const char* servic
     {
         if(!std::strcmp(transport, COMM_TRANSPORT_WEB_SOCKET_PLAIN))
         {
-            if(nullptr == (proto = find_protocol(log_sink::NAME, false, port)))
-            {
-                proto = add_protocol(new log_sink(port), false);
-            }
+            proto = add_protocol(new server_protocol("gkr-log-sink", service::FLAG_CAN_RECEIVE_DATA, port));
         }
         else if(!std::strcmp(transport, COMM_TRANSPORT_WEB_SOCKET_SECURE))
         {
-            if(nullptr == (proto = find_protocol(log_sink::NAME, true, port)))
-            {
-                proto = add_protocol(new log_sink(port), true);
-            }
+            proto = add_protocol(new server_protocol("gkr-log-sink", service::FLAG_CAN_RECEIVE_DATA | service::FLAG_SECURE, port));
         }
         else
         {
@@ -221,46 +214,29 @@ std::shared_ptr<bridge> context::create_bridge(end_point* ep, const char* servic
 
     bridge_ptr_t bridge_ptr = std::make_shared<bridge>(ep, proto);
 
+    proto->m_bridge = bridge_ptr;
+
     return bridge_ptr;
 }
 
-protocol* context::find_protocol(const char* name, bool is_secure, int port)
-{
-    Check_Arg_NotNull(name);
-
-    std::size_t count = m_protocols.size();
-
-    if(count-- == 1) return nullptr;
-
-    for(std::size_t index = 0; index < count; ++index)
-    {
-        protocol* proto = static_cast<protocol*>(m_protocols[index].user);
-
-        if(!std::strcmp(name, proto->get_name()) && (is_secure == proto->is_secure()) && (port == proto->get_listen_port()))
-        {
-            return proto;
-        }
-    }
-    return nullptr;
-}
-
-protocol* context::add_protocol(protocol* p, bool is_secure)
+protocol* context::add_protocol(protocol* p, bool infront)
 {
     Assert_Check(!m_protocols.empty());
 
-    struct lws_protocols& proto = m_protocols.back();
+    if(infront) m_protocols.insert(m_protocols.begin(), LWS_PROTOCOL_LIST_TERM);
+
+    struct lws_protocols& proto = infront
+        ? m_protocols.front()
+        : m_protocols.back();
 
     proto.user     = p;
     proto.callback = static_cast<lws_callback_function *>(static_cast<protocol*>(proto.user)->get_callback());
     proto.name     = static_cast<protocol*>(proto.user)->get_name();
-    proto.id       = static_cast<protocol*>(proto.user)->get_info(
-        proto.per_session_data_size,
-        proto.rx_buffer_size,
-        proto.tx_packet_size);
+    proto.id       = static_cast<protocol*>(proto.user)->get_info(proto.rx_buffer_size, proto.tx_packet_size);
 
-    m_protocols.push_back(LWS_PROTOCOL_LIST_TERM);
+    proto.per_session_data_size = sizeof(instance);
 
-    static_cast<protocol*>(proto.user)->m_is_secure = is_secure;
+    if(!infront) m_protocols.push_back(LWS_PROTOCOL_LIST_TERM);
 
     return static_cast<protocol*>(proto.user);
 }
@@ -274,11 +250,11 @@ bool context::setup(struct lws_context_creation_info& info)
     {
         protocol* proto = static_cast<protocol*>(m_protocols[index].user);
 
-        if(proto->can_connect())
+        if(proto->is_client())
         {
             info.options |= LWS_SERVER_OPTION_DO_SSL_GLOBAL_INIT;
         }
-        if(proto->can_listen())
+        if(proto->is_server())
         {
             if(info.port != CONTEXT_PORT_NO_LISTEN)
             {
@@ -293,12 +269,10 @@ bool context::setup(struct lws_context_creation_info& info)
             info.options |= LWS_SERVER_OPTION_HTTP_HEADERS_SECURITY_BEST_PRACTICES_ENFORCE;
         }
     }
-    if(info.port == CONTEXT_PORT_NO_LISTEN)
+    if(info.port != CONTEXT_PORT_NO_LISTEN)
     {
-        m_protocols.erase(m_protocols.begin());
-    }
-    else
-    {
+        add_protocol(new dummy_protocol(), true);
+
         static const struct lws_http_mount http_mount
         {
             /* .mount_next */            nullptr,          /* linked-list "next" */

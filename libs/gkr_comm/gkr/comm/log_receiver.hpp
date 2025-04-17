@@ -74,22 +74,16 @@ protected:
     virtual bool on_exception(except_method_t method, const std::exception* e) noexcept override;
 
 protected:
-    virtual bool on_error(int evt, void* data, std::size_t size) override;
-    virtual void on_connect() override;
-    virtual void on_disconnect() override;
-    virtual void on_data_received() override;
+    virtual void on_error(int error, const void* data, std::size_t size) override;
+    virtual void on_connect(connection* conn) override;
+    virtual void on_disconnect(connection* conn) override;
+    virtual void on_data_received(connection* conn) override;
 
 public:
     bool add_collector(std::shared_ptr<log_collector> collector);
     bool del_collector(std::shared_ptr<log_collector> collector);
 
 private:
-    void configure_bridge();
-
-private:
-    const params*  m_params = nullptr;
-    std::size_t    m_root   = 0;
-
     waitable_event m_data_received_event;
 
     std::vector<std::shared_ptr<log_collector>> m_collectors;

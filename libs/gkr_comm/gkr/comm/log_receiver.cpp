@@ -9,6 +9,7 @@
 #include <gkr/comm/log.hxx>
 
 #include <gkr/params.hpp>
+#include <gkr/misc/sentry.hpp>
 
 namespace gkr
 {
@@ -26,6 +27,11 @@ log_receiver::log_receiver()
 
 log_receiver::~log_receiver() noexcept(DIAG_NOEXCEPT)
 {
+    if(m_bridge)
+    {
+        m_bridge->leave();
+        m_bridge.reset();
+    }
     join(true);
 }
 
@@ -61,11 +67,27 @@ bool log_receiver::configure(
 
     m_bridge.reset();
 
-    m_params = parameters;
-    m_root   = root;
     m_bridge = bridge;
 
     LOGI_("Log Receiver configured on port %i with transport '%s' and provider '%s'", port, transport, service_provider->get_name());
+
+    std::size_t max_count  = 0;
+    std::size_t init_count = 64;
+    std::size_t init_size  = 1024;
+    float       res_factor = 1.5f;
+
+    if(parameters != nullptr)
+    {
+        auto lock = parameters->get_reader_lock();
+
+        max_count  = parameters->get_value(COMM_PARAM_BRIDGE_RECV_QUEUE_MAX_ELEMENT_COUNT , root, max_count );
+        init_count = parameters->get_value(COMM_PARAM_BRIDGE_RECV_QUEUE_INIT_ELEMENT_COUNT, root, init_count);
+        init_size  = parameters->get_value(COMM_PARAM_BRIDGE_RECV_QUEUE_INIT_ELEMENT_SIZE , root, init_size );
+        res_factor = parameters->get_value(COMM_PARAM_BRIDGE_RECV_QUEUE_RESERVE_FACTOR    , root, res_factor);
+    }
+    m_bridge->configure_incoming_queue(max_count, init_count, init_size, res_factor);
+
+    LOGV_("Log Receiver configured bridge receive queue with %zu elements with %zu bytes each - with res factor: %.2f", init_count, init_size, res_factor);
     return true;
 }
 
@@ -129,13 +151,14 @@ bool log_receiver::on_start()
 {
     if(!m_bridge) return false;
 
-    configure_bridge();
-
     return m_bridge->listen();
 }
 
 void log_receiver::on_finish()
 {
+    if(!m_bridge) return;
+
+    m_bridge->close();
 }
 
 void log_receiver::on_cross_action(action_id_t action, void* param, void* result)
@@ -153,6 +176,26 @@ void log_receiver::on_wait_timeout()
 
 void log_receiver::on_wait_success(std::size_t index)
 {
+    Check_ValidState(index == 0);
+
+    for(std::size_t size = 0, sender_id = 0; ; )
+    {
+        connection* conn;
+
+        const void* data = m_bridge->acquire_received_data(size, conn);
+        if(data == nullptr) break;
+
+        misc::sentry sentry([this] () {
+            m_bridge->release_received_data();
+        });
+
+        const log_packet_head& log_packet = *static_cast<const log_packet_head*>(data);
+
+        for(auto& collector : m_collectors)
+        {
+            collector->consume_log_packet(log_packet);
+        }
+    }
 }
 
 bool log_receiver::on_exception(except_method_t method, const std::exception* e) noexcept
@@ -160,21 +203,21 @@ bool log_receiver::on_exception(except_method_t method, const std::exception* e)
     return true;
 }
 
-bool log_receiver::on_error(int evt, void* data, std::size_t size)
-{
-    return false;
-}
-
-void log_receiver::on_connect()
+void log_receiver::on_error(int event, const void* data, std::size_t size)
 {
 }
 
-void log_receiver::on_disconnect()
+void log_receiver::on_connect(connection* conn)
 {
 }
 
-void log_receiver::on_data_received()
+void log_receiver::on_disconnect(connection* conn)
 {
+}
+
+void log_receiver::on_data_received(connection* conn)
+{
+    m_data_received_event.fire();
 }
 
 bool log_receiver::add_collector(std::shared_ptr<log_collector> collector)
@@ -185,26 +228,6 @@ bool log_receiver::add_collector(std::shared_ptr<log_collector> collector)
 bool log_receiver::del_collector(std::shared_ptr<log_collector> collector)
 {
     return false;
-}
-
-void log_receiver::configure_bridge()
-{
-    std::size_t init_count = 64;
-    std::size_t init_size  = 1024;
-    float       res_factor = 1.5f;
-
-    if(m_params != nullptr)
-    {
-        auto lock = m_params->get_reader_lock();
-
-        init_count = m_params->get_value(COMM_PARAM_BRIDGE_RECV_QUEUE_INIT_ELEMENT_COUNT, m_root, init_count);
-        init_size  = m_params->get_value(COMM_PARAM_BRIDGE_RECV_QUEUE_INIT_ELEMENT_SIZE , m_root, init_size );
-        res_factor = m_params->get_value(COMM_PARAM_BRIDGE_RECV_QUEUE_RESERVE_FACTOR    , m_root, res_factor);
-    }
-
-    m_bridge->configure_incoming_queue(init_count, init_size, res_factor);
-
-    LOGV_("Log Receiver configured bridge receive queue with %zu elements with %zu bytes each - with res factor: %.2f", init_count, init_size, res_factor);
 }
 
 }

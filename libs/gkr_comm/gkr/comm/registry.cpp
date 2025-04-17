@@ -50,7 +50,7 @@ public:
     {
         return m_initialized;
     }
-    void init(bool clients_only)
+    void init()
     {
         m_providers.reserve(4);
 
@@ -176,11 +176,11 @@ gkr::comm::storage& get_storage()
 extern "C"
 {
 
-int gkr_comm_providers_registry_init(int clients_only, int add_log_comm_channel)
+int gkr_comm_providers_registry_init(int add_log_comm_channel)
 {
     Check_ValidState(!get_storage().is_initialized(), gkr_b2i(false));
 
-    get_storage().init(clients_only);
+    get_storage().init();
 
     if(add_log_comm_channel)
     {

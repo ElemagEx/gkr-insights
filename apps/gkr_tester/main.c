@@ -60,7 +60,7 @@ int init(int argc, const char* argv[])
 
     LOGV("Tester starting...");
 
-    gkr_comm_providers_registry_init(true, true);
+    gkr_comm_providers_registry_init(true);
     gkr_log_add_consumer_by_id(gkr_log_get_channel(COMM_LOG_CHANNEL_NAME), id);
 
     gkr_comm_register_provider_ex(COMM_PROVIDER_NAME_LIBWEBSOCKET, params, gkr_params_find_node(params, "lws"));

@@ -80,7 +80,11 @@ upstream_log_consumer::upstream_log_consumer(
 
 upstream_log_consumer::~upstream_log_consumer()
 {
-    m_bridge.reset();
+    if(m_bridge)
+    {
+        m_bridge->leave();
+        m_bridge.reset();
+    }
 }
 
 void upstream_log_consumer::reset(const params* parameters, std::size_t root)
@@ -246,11 +250,11 @@ bool upstream_log_consumer::filter_log_message(const log::message& msg)
 
 void upstream_log_consumer::consume_log_message(const log::message& msg)
 {
-    if(!m_bridge->is_connected()) return;
+    if(m_conn == nullptr) return;
 
     std::size_t capacity;
 
-    void* buff = m_bridge->acquire_outgoing_buffer(capacity);
+    void* buff = m_bridge->acquire_outgoing_buffer(capacity, m_conn);
 
     if(buff == nullptr) return;
 
@@ -264,20 +268,19 @@ const char* upstream_log_consumer::compose_output(const log::message& msg, unsig
     return nullptr;
 }
 
-bool upstream_log_consumer::on_error(int evt, void* data, std::size_t)
-{
-    return false;
-}
-
-void upstream_log_consumer::on_connect()
+void upstream_log_consumer::on_error(int event, const void* data, std::size_t)
 {
 }
 
-void upstream_log_consumer::on_disconnect()
+void upstream_log_consumer::on_connect(connection* conn)
 {
 }
 
-void upstream_log_consumer::on_data_received()
+void upstream_log_consumer::on_disconnect(connection* conn)
+{
+}
+
+void upstream_log_consumer::on_data_received(connection* conn)
 {
 }
 
@@ -318,6 +321,7 @@ bool upstream_log_consumer::parse_path(const char* path)
 
 void upstream_log_consumer::configure_bridge()
 {
+    std::size_t max_count  = 0;
     std::size_t init_count = gkr_log_get_max_queue_entries();
     std::size_t init_size  = gkr_log_get_max_message_chars();
     float       res_factor = 1.5f;
@@ -326,12 +330,13 @@ void upstream_log_consumer::configure_bridge()
     {
         auto lock = m_params->get_reader_lock();
 
+        max_count  = m_params->get_value(COMM_PARAM_BRIDGE_SEND_QUEUE_MAX_ELEMENT_COUNT , m_root, max_count );
         init_count = m_params->get_value(COMM_PARAM_BRIDGE_SEND_QUEUE_INIT_ELEMENT_COUNT, m_root, init_count);
         init_size  = m_params->get_value(COMM_PARAM_BRIDGE_SEND_QUEUE_INIT_ELEMENT_SIZE , m_root, init_size );
         res_factor = m_params->get_value(COMM_PARAM_BRIDGE_SEND_QUEUE_RESERVE_FACTOR    , m_root, res_factor);
     }
 
-    m_bridge->configure_outgoing_queue(init_count, init_size, res_factor);
+    m_bridge->configure_outgoing_queue(max_count, init_count, init_size, res_factor);
 
     LOGV_("Log Upstream configured bridge send queue with %zu elements with %zu bytes each - with res factor: %.2f", init_count, init_size, res_factor);
 }
