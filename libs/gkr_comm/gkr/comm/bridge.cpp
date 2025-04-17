@@ -103,9 +103,10 @@ bool bridge::listen()
 
 void bridge::close(connection* conn, int status, const char* reason)
 {
-    Check_ValidState(m_service);
-
-    if(conn != nullptr)
+    if(m_service == nullptr)
+    {
+    }
+    else if(conn != nullptr)
     {
         m_service->close(conn, status, reason);
     }
